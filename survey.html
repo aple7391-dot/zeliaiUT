@@ -96,7 +96,9 @@ h1.long{font-size:20px;margin-bottom:18px}
   function shuffle2(){return Math.random()<.5?['before','after']:['after','before']}
   var S=load();
   if(!S||!S.pid){
-    S={pid:uuid(),step:0,a:{},o3:shuffle2(),l4:Math.random()<.5?'before_left':'after_left',done:false};
+    var shared=null;try{shared=localStorage.getItem('zeli_pid')}catch(e){}
+    var pidNew=shared||uuid();try{localStorage.setItem('zeli_pid',pidNew)}catch(e){}
+    S={pid:pidNew,step:0,a:{},o3:shuffle2(),l4:Math.random()<.5?'before_left':'after_left',done:false};
     save();
   }
   function stored(k){try{return localStorage.getItem(k)}catch(e){return null}}
