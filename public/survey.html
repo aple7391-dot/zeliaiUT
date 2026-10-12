@@ -55,12 +55,21 @@ textarea:focus{border-color:var(--brand)}
 .lb .x{position:fixed;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#000;font-size:22px;z-index:51;cursor:pointer}
 .lb .tip{position:fixed;left:0;right:0;bottom:16px;text-align:center;color:#fff;font-size:13px;z-index:51;pointer-events:none}
 @media(max-width:380px){.q{font-size:16px}.scale button{font-size:15px}}
-.card.v-before .tag{background:#eceef3;color:#5d6178}
-.card.v-before .scale button.on{background:#6b7080;border-color:#6b7080;color:#fff}
-.card.v-before textarea:focus{border-color:#6b7080}
+.card.v-before .tag{background:#fff3bf;color:#7a5b00}
+.card.v-before .scale button.on{background:#f5c518;border-color:#f5c518;color:#3d2e00}
+.card.v-before textarea:focus{border-color:#f5c518}
+.card.v-after .tag{background:#e6f6cc;color:#3d6b10}
+.card.v-after .scale button.on{background:#9ccc3c;border-color:#9ccc3c;color:#1f3a05}
+.card.v-after textarea:focus{border-color:#9ccc3c}
+.choices button.v-before.on{border-color:#f5c518;background:#fff8d6;color:#7a5b00}
+.choices button.v-after.on{border-color:#9ccc3c;background:#eef9d9;color:#3d6b10}
+.pair figcaption span{display:inline-block;padding:3px 10px;border-radius:999px;font-size:14px}
+.pair figcaption .v-before{background:#fff3bf;color:#7a5b00}
+.pair figcaption .v-after{background:#e6f6cc;color:#3d6b10}
 .ghost{display:flex;width:fit-content;align-items:center;gap:6px;min-height:44px;padding:0 14px;margin:0 0 14px;border:1.5px solid var(--line);background:transparent;border-radius:12px;color:var(--sub);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer}
 .ghost:hover,.ghost:active{border-color:var(--brand);color:var(--brand)}
-.card.v-before .ghost:hover,.card.v-before .ghost:active{border-color:#6b7080;color:#40445a}
+.card.v-before .ghost:hover,.card.v-before .ghost:active{border-color:#f5c518;color:#7a5b00}
+.card.v-after .ghost:hover,.card.v-after .ghost:active{border-color:#9ccc3c;color:#3d6b10}
 h1.long{font-size:20px;margin-bottom:18px}
 .lb.pop{background:#000a;overflow:hidden;display:none;align-items:center;justify-content:center}
 .lb.pop.show{display:flex}
@@ -158,7 +167,7 @@ h1.long{font-size:20px;margin-bottom:18px}
     if(step==='q1'){
       h+='<h1>과제를 마친 소감을 알려주세요</h1><p class="sub">버전별로 각각 답해 주세요.</p>';
       ['before','after'].forEach(function(v){
-        h+=block(v,'<p class="q">'+esc(T.seq)+'</p>'+scale('seq_'+v,T.seqLow,T.seqHigh));
+        h+=block(v,'<button type="button" class="ghost" data-img="'+C.IMAGES.chat[v]+'" data-alt="'+esc(C.ALT.chat[v])+'">'+esc(T.reviewImage)+'</button><p class="q">'+esc(T.seq)+'</p>'+scale('seq_'+v,T.seqLow,T.seqHigh));
       });
     }else if(step==='q2'){
       h+='<h1 class="long">'+esc(T.experienceTitle)+'</h1>';
@@ -175,12 +184,12 @@ h1.long{font-size:20px;margin-bottom:18px}
       var order=S.l4==='before_left'?['before','after']:['after','before'];
       h+='<h1>두 화면을 비교해 주세요</h1><p class="sub">이미지를 탭하면 크게 볼 수 있어요.</p><div class="pair">';
       order.forEach(function(v){
-        h+='<figure><figcaption>'+esc(L[v])+'</figcaption>'+imgBox('chat',v)+'</figure>';
+        h+='<figure><figcaption><span class="v-'+v+'">'+esc(L[v])+'</span></figcaption>'+imgBox('chat',v)+'</figure>';
       });
       h+='</div><section class="card"><p class="q">'+esc(T.compareChoice)+'</p><div class="choices">';
       order.concat(['same']).forEach(function(v){
         var lab=v==='same'?T.compareSame:L[v];
-        h+='<button type="button" data-k="compare_choice" data-v="'+v+'" class="'+(S.a.compare_choice===v?'on':'')+'">'+esc(lab)+'</button>';
+        h+='<button type="button" data-k="compare_choice" data-v="'+v+'" class="v-'+v+(S.a.compare_choice===v?' on':'')+'">'+esc(lab)+'</button>';
       });
       h+='</div></section><section class="card"><p class="q">'+esc(T.compareReason)+'</p>'+text('compare_reason')+'</section>';
     }else if(step==='q5'){
