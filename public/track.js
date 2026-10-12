@@ -5,6 +5,7 @@
  *   1) 어디서 헤매는가      → UT Idle(멈춰 있음), UT Click(dead_click: 반응 없는 곳 누름, 같은 곳 반복 클릭)
  *   2) 어디에 오래 머무는가 → UT View(place, t_ms 로 체류 시간 계산)
  *   3) 목표를 달성하지 않고 '성공했어요'를 눌렀는가
+ *        → 목표 = 모델 선택/개발자 모드 전환 후 '채팅 입력칸 클릭'
  *        → UT Goal Reached 가 있는 세션과 UT Result(result=success, goal_reached=false) 비교
  *
  * 개인정보: 입력창에 적은 글자는 수집하지 않습니다. 버튼 문구/요소 이름/좌표/화면 이름만 기록합니다.
@@ -34,29 +35,33 @@
 
   /* ---------- 퍼널: 목표(goal)를 달성했는지 판단하는 단계 ---------- */
   function has(sel) { return !!document.querySelector(sel); }
+  // 클릭으로 판정하는 단계용 플래그 (아래 click 핸들러에서 설정)
+  var flag = { input_clicked: false };
   var FUNNELS = {
-    // 개선 전: 설정 > 개발자 모드 ON > 홈(웹) 전환 이 목표
+    // 개선 전: 설정 > 개발자 모드 ON > 홈(웹) 전환 > 채팅 입력칸 클릭(= 목표) > 메시지 전송
     before: {
-      goal: 'web_home',
+      goal: 'input_clicked',
       steps: [
         ['settings_open', '설정 진입', function (c) { return c.screen === 's-set'; }],
         ['devmode_on', '개발자 모드 켜기', function () { return has('#devSw.on'); }],
-        ['web_home', '홈(개발자 모드) 전환 = 목표', function (c) { return c.screen === 's-web'; }],
+        ['web_home', '홈(개발자 모드) 전환', function (c) { return c.screen === 's-web'; }],
+        ['input_clicked', '채팅 입력칸 클릭 = 목표', function () { return flag.input_clicked; }],
         ['chat_sent', '메시지 전송', function () { return has('#chatMain .msg.me'); }]
       ]
     },
-    // 개선 후: 포털 메뉴 > 서비스 > 모델 선택 > 채팅 화면 진입 이 목표
+    // 개선 후: 포털 메뉴 > 서비스 > 모델 선택 > 채팅 화면 진입 > 채팅 입력칸 클릭(= 목표) > 질문 전송 > 답변
     after: {
-      goal: 'chat_entered',
+      goal: 'input_clicked',
       steps: [
         ['portal_open', 'AI 포털 메뉴 열기', function (c) { return c.overlay === 'sheet'; }],
         ['service_open', '서비스 메뉴 열기', function (c) { return c.overlay === 'agg' || c.overlay === 'multi' || c.overlay === 'agent'; }],
         ['model_picked', '모델/에이전트 선택', function () { return has('#aggModels .mi2.sel, #multiModels .mi2.sel, #agentCats .mi2.sel'); }],
-        ['chat_entered', '채팅 화면 진입 = 목표', function (c) {
+        ['chat_entered', '채팅 화면 진입', function (c) {
           if (c.screen === 's-agent') return true;
           return (c.screen === 's-search' || c.screen === 's-load' || c.screen === 's-ans') &&
             has('#s-search .comp.m-agg, #s-search .comp.m-multi');
         }],
+        ['input_clicked', '채팅 입력칸 클릭 = 목표', function () { return flag.input_clicked; }],
         ['question_sent', '질문 전송', function (c) { return c.screen === 's-load'; }],
         ['answer_shown', '답변 확인', function (c) { return c.screen === 's-ans' || c.screen === 's-agans'; }]
       ]
@@ -205,6 +210,18 @@
     var box = (document.getElementById('phone') || document.documentElement).getBoundingClientRect();
     var x = box.width ? Math.round((ev.clientX - box.left) / box.width * 100) : undefined;
     var y = box.height ? Math.round((ev.clientY - box.top) / box.height * 100) : undefined;
+
+    // 채팅 입력칸 클릭(목표) 판정
+    if (!flag.input_clicked && ev.target.closest) {
+      var tg = ev.target;
+      if (VARIANT === 'before') {
+        flag.input_clicked = !!tg.closest('#msgIn, .cbox') && has('#devSw.on');
+      } else if (VARIANT === 'after') {
+        flag.input_clicked =
+          (!!tg.closest('#s-search #searchIn, #s-search .comp .box') && has('#s-search .comp.m-agg, #s-search .comp.m-multi')) ||
+          !!tg.closest('#s-agent .ag-in, #s-agent .ag-ta, #s-agent .ag-sel');
+      }
+    }
 
     var res = null;
     if (ev.target.closest) {
