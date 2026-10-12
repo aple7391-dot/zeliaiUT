@@ -1,13 +1,14 @@
 // 로컬 실행용 서버: 정적 파일 + POST /api/submit
 // 실행: npm start  →  http://localhost:3000
-// (루트에 server.js 가 있으면 Vercel 이 서버 진입점으로 착각해 / 가 404가 되므로 scripts/ 아래에 둔다)
-require('../lib/env.js').loadEnv();
+// 참고: Vercel 이 이 파일을 서버 진입점으로 인식하는 프로젝트라서 삭제/이동하면 배포가 실패한다.
+//       정적 파일은 public/ 이 CDN 으로 서빙하므로, '/' 는 /index.html 로 보낸다.
+require('./lib/env.js').loadEnv();
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { handleSubmit } = require('../lib/submit.js');
+const { handleSubmit } = require('./lib/submit.js');
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = __dirname;
 const PORT = Number(process.env.PORT || 3000);
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
@@ -32,7 +33,8 @@ http.createServer(async (req, res) => {
     res.writeHead(out.status, { 'Content-Type': 'application/json; charset=utf-8' });
     return res.end(JSON.stringify(out.json));
   }
-  let rel = url === '/' ? '/index.html' : url;
+  if (url === '/') { res.writeHead(302, { Location: '/index.html' }); return res.end(); }
+  let rel = url;
   if (BLOCK.test(rel) || rel.includes('..')) { res.writeHead(404); return res.end('Not found'); }
   const file = path.join(ROOT, rel);
   fs.readFile(file, (err, data) => {
