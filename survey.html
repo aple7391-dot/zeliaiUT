@@ -139,7 +139,13 @@ h1.long{font-size:20px;margin-bottom:18px}
       case 'q2':return filled('open_before')&&filled('open_after');
       case 'q3a':return filled('imp_'+S.o3[0]);
       case 'q3b':return filled('imp_'+S.o3[1]);
-      case 'q4':return filled('past_chatbot_use')&&filled('past_model_switch');
+      case 'q4':
+        if(!filled('past_model_switch')||!filled('past_chatbot_use_recent'))return false;
+        if(S.a.past_chatbot_use_recent===T.pastRecentYes){
+          if(!filled('past_chatbot_use_when')||!filled('past_chatbot_use_purpose'))return false;
+          if(S.a.past_chatbot_use_when===T.pastWhenOther&&!filled('past_chatbot_use_when_other'))return false;
+        }
+        return true;
       case 'q5':return filled('intent_before')&&filled('intent_after')&&filled('intent_open_before')&&filled('intent_open_after');
     }
     return false;
@@ -181,13 +187,24 @@ h1.long{font-size:20px;margin-bottom:18px}
       h+='<p class="hint">이미지를 탭하면 크게 볼 수 있어요</p>';
       h+='<section class="card"><p class="q">'+esc(T.firstImpression)+'</p>'+text('imp_'+v)+'</section>';
     }else if(step==='q4'){
-      h+='<h1>평소 AI 챗봇 이용에 대해 알려주세요</h1>';
-      h+='<section class="card"><p class="q">'+esc(T.pastChatbotUse)+'</p>'+text('past_chatbot_use')+'</section>';
-      h+='<section class="card"><p class="q">'+esc(T.pastModelSwitch)+'</p>'+text('past_model_switch')+'</section>';
+      var yes=S.a.past_chatbot_use_recent===T.pastRecentYes, oth=S.a.past_chatbot_use_when===T.pastWhenOther;
+      function choiceBtns(key,opts){
+        return '<div class="choices">'+opts.map(function(o){
+          return '<button type="button" data-k="'+key+'" data-v="'+esc(o)+'" class="'+(S.a[key]===o?'on':'')+'">'+esc(o)+'</button>';
+        }).join('')+'</div>';
+      }
+      h+='<h1>'+esc(T.pastTitle)+'</h1>';
+      h+='<section class="card"><p class="q">'+esc(T.pastRecent)+'</p>'+choiceBtns('past_chatbot_use_recent',[T.pastRecentYes,T.pastRecentNo])+'</section>';
+      h+='<div id="pastMore" style="display:'+(yes?'block':'none')+'">';
+      h+='<section class="card"><p class="q">'+esc(T.pastWhen)+'</p>'+choiceBtns('past_chatbot_use_when',[T.pastWhenToday,T.pastWhenYesterday,T.pastWhenOther]);
+      h+='<div id="whenOther" style="margin-top:12px;display:'+(oth?'block':'none')+'"><textarea data-t="past_chatbot_use_when_other" rows="2" maxlength="300" placeholder="'+esc(T.pastWhenOtherPlaceholder)+'">'+esc(S.a.past_chatbot_use_when_other||'')+'</textarea></div></section>';
+      h+='<section class="card"><p class="q">'+esc(T.pastPurpose)+'</p>'+text('past_chatbot_use_purpose')+'</section>';
+      h+='</div>';
+      h+='<section class="card"><p class="q">'+esc(T.pastModelSwitch)+'<span style="display:block;margin-top:4px;font-size:13px;font-weight:500;color:var(--sub)">'+esc(T.pastModelSwitchNote)+'</span></p>'+text('past_model_switch')+'</section>';
     }else if(step==='q5'){
       h+='<h1>마지막 질문이에요</h1><p class="sub">버전별로 각각 답해 주세요.</p>';
       ['before','after'].forEach(function(v){
-        h+=block(v,'<p class="q">'+esc(T.intent.replace('{label}',L[v]))+'</p>'+scale('intent_'+v,T.intentLow,T.intentHigh)+
+        h+=block(v,'<button type="button" class="ghost" data-img="'+C.IMAGES.chat[v]+'" data-alt="'+esc(C.ALT.chat[v])+'">'+esc(T.reviewImage)+'</button><p class="q">'+esc(T.intent.replace('{label}',L[v]))+'</p>'+scale('intent_'+v,T.intentLow,T.intentHigh)+
           '<p class="q" style="margin-top:20px">'+esc(T.intentReason)+'</p>'+text('intent_open_'+v));
       });
     }
@@ -227,6 +244,11 @@ h1.long{font-size:20px;margin-bottom:18px}
   // 첫 화면부터 모든 이미지를 미리 받아 둠 (뒤에서 바로 뜨도록)
   ['start','chat'].forEach(function(k){['before','after'].forEach(function(v){var i=new Image();i.src=C.IMAGES[k][v]})});
 
+  function syncPast(){
+    var m=$('pastMore'),o=$('whenOther');
+    if(m)m.style.display=S.a.past_chatbot_use_recent===T.pastRecentYes?'block':'none';
+    if(o)o.style.display=S.a.past_chatbot_use_when===T.pastWhenOther?'block':'none';
+  }
   function updateNext(){$('next').disabled=!valid(STEPS[S.step])||!!S.sending}
 
   /* ---------- 입력 ---------- */
@@ -240,7 +262,7 @@ h1.long{font-size:20px;margin-bottom:18px}
         b.parentElement.querySelectorAll('button').forEach(function(x){
           var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-checked',on)});
       }
-      updateNext();return;
+      syncPast();updateNext();return;
     }
     var gh=e.target.closest&&e.target.closest('[data-img]');
     if(gh){openLb(gh.getAttribute('data-img'),gh.getAttribute('data-alt')||'',true);return}
