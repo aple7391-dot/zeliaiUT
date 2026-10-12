@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>젤리아이 UX 테스트</title>
+<meta name="description" content="젤리아이 개선 전/후 사용성 테스트 시작 화면">
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#14142b;--sub:#5d6178;--line:#e4e6ef;--brand:#4f46e5;--brand-soft:#eef0ff}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;line-height:1.55;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+header{width:100%;max-width:720px;padding:20px 20px 0;display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.dot{width:28px;height:28px;border-radius:8px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+main{width:100%;max-width:720px;padding:40px 20px 56px;flex:1}
+.tag{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:14px;font-weight:700;padding:6px 12px;border-radius:999px;margin-bottom:18px}
+h1{font-size:clamp(22px,6vw,30px);line-height:1.45;font-weight:800;letter-spacing:-.02em;word-break:keep-all}
+h1 span{display:block;white-space:nowrap}
+h1 em{font-style:normal;color:var(--brand);white-space:nowrap}
+.lead{margin-top:16px;color:var(--sub);font-size:17px;word-break:keep-all}
+.steps{display:flex;gap:10px;margin:28px 0 32px;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 14px}
+.step b{width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center}
+.pick{font-size:16px;font-weight:700;color:var(--sub);margin-bottom:12px}
+.opts{display:flex;flex-direction:column;gap:14px}
+.opt{display:flex;align-items:center;gap:16px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:20px;text-decoration:none;color:var(--ink);transition:.15s;box-shadow:0 1px 2px #14142b0a}
+.opt:hover,.opt:focus-visible{border-color:var(--brand);box-shadow:0 8px 24px #4f46e522;transform:translateY(-1px);outline:0}
+.opt:active{transform:none}
+.ico{width:56px;height:56px;border-radius:16px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:28px;flex:none}
+.opt.after .ico{background:#e7f7f0}
+.txt{flex:1;min-width:0}
+.txt strong{display:block;font-size:21px;font-weight:800}
+.txt span{display:block;font-size:15px;color:var(--sub);margin-top:4px}
+.go{width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.opt:hover .go{background:var(--brand)}
+@media(max-width:480px){main{padding-top:28px}.opt{padding:18px 16px;gap:14px}.steps{display:none}.lead{margin-bottom:28px}}
+@media(max-width:360px){.txt strong{font-size:19px}}
+.survey{margin-top:36px}
+.survey h2{font-size:16px;font-weight:800;margin-bottom:12px}
+.survey a{display:flex;align-items:center;justify-content:center;gap:8px;height:56px;border-radius:14px;background:var(--brand);color:#fff;font-size:17px;font-weight:800;text-decoration:none;box-shadow:0 6px 18px #4f46e533}
+.survey a:active{transform:scale(.99)}
+.survey a[aria-disabled="true"]{background:#d9dbe6;color:#8b8fa3;box-shadow:none;pointer-events:none;cursor:not-allowed}
+.survey .hint{margin-top:10px;font-size:13px;color:var(--sub);text-align:center}
+.survey .hint.done{display:none}
+</style>
+</head>
+<body>
+<header><span class="dot">Z</span>젤리아이 UX 테스트</header>
+<main>
+  <span class="tag">사용성 테스트 · 과제 1</span>
+  <h1><span>모델을 선택하고</span><span><em>LLM</em>과 대화를 시작해보세요</span></h1>
+  <p class="lead">화면 내에서 16초가 지나면 포기, 성공 선택이 가능합니다. 클릭해서 다시 돌아와주세요.</p>
+
+  <div class="steps" aria-label="진행 순서">
+    <span class="step"><b>1</b>버전 선택</span>
+    <span class="step"><b>2</b>모델 선택</span>
+    <span class="step"><b>3</b>채팅 화면 진입</span>
+  </div>
+
+  <p class="pick">테스트할 버전을 선택하세요</p>
+  <nav class="opts">
+    <a class="opt before" id="before" href="before.html">
+      <span class="ico">📱</span>
+      <span class="txt"><strong>젤리아이 개선 전</strong><span>기존 화면으로 시작</span></span>
+      <span class="go">→</span>
+    </a>
+    <a class="opt after" id="after" href="after.html">
+      <span class="ico">✨</span>
+      <span class="txt"><strong>젤리아이 개선 후</strong><span>개선된 화면으로 시작</span></span>
+      <span class="go">→</span>
+    </a>
+  </nav>
+
+  <section class="survey">
+    <h2>마지막으로 의견 작성 부탁드립니다</h2>
+    <a id="survey" href="survey.html" aria-disabled="true">10초만에 설문 작성 →</a>
+    <p class="hint" id="surveyHint">두 화면 모두에서 선택 버튼을 누르고 돌아오면 설문을 작성할 수 있어요</p>
+  </section>
+</main>
+<script>
+// 개선 전/후를 모두 눌러본 뒤에만 설문 버튼 활성화
+(function(){
+  var K={before:'zeli_done_before',after:'zeli_done_after'};
+  function get(k){try{return localStorage.getItem(k)==='1'}catch(e){return false}}
+  function set(k){try{localStorage.setItem(k,'1')}catch(e){}}
+  function refresh(){
+    var ok=get(K.before)&&get(K.after);
+    var a=document.getElementById('survey');
+    a.setAttribute('aria-disabled',ok?'false':'true');
+    document.getElementById('surveyHint').classList.toggle('done',ok);
+  }
+  document.getElementById('survey').addEventListener('click',function(e){
+    if(this.getAttribute('aria-disabled')==='true')e.preventDefault();
+  });
+  window.addEventListener('pageshow',refresh);
+  refresh();
+})();
+</script>
+</body>
+</html>

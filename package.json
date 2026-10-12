@@ -1,0 +1,13 @@
+{
+  "name": "zeliai-ut",
+  "private": true,
+  "version": "1.0.0",
+  "description": "젤리아이 UT 프로토타입 + 설문",
+  "scripts": {
+    "start": "node server.js",
+    "test-mail": "node scripts/test-mail.js"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>젤리아이 개선 후 (UT용)</title>
+<meta name="description" content="젤리아이 개선 후 UT 프로토타입: 피그마 last 페이지 통합검색 플로우">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--blue:#0797f2;--blue2:#43b3fa;--tint:#c1ecf6;--em:#20889d;--n20:#333;--n40:#696969;--n60:#9c9c9c;--n95:#f2f2f2;--n97:#f7f7f7}
+body{background:#2a2a2e;font-family:-apple-system,"Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;color:var(--n20);display:flex;justify-content:center;align-items:center;min-height:100vh}
+#phone{width:100%;max-width:390px;height:100vh;max-height:844px;background:#fff;position:relative;overflow:hidden}
+@media(min-width:500px){#phone{border-radius:28px;box-shadow:0 20px 60px #000a}}
+button{font-family:inherit;border:0;background:none;cursor:pointer;color:inherit}
+svg{display:block}
+.screen{position:absolute;inset:0;display:none;background:#fff;overflow:hidden}
+.screen.active{display:block}
+
+/* status bar */
+.sb{height:44px;padding:14px 26px 0;display:flex;justify-content:space-between;font-size:15px;font-weight:600;color:#111;position:relative;z-index:3}
+.sb i{font-style:normal;font-size:12px;letter-spacing:2px}
+
+/* top bar */
+.top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:relative;z-index:3}
+.top .t{font-size:15px;font-weight:700;position:absolute;left:0;right:0;text-align:center;pointer-events:none}
+.ib{width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+.ib svg{width:26px;height:26px;stroke:#222;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* home / search */
+.bg{background:linear-gradient(180deg,#f4f4f4 0,#fff 120px)}
+.hero{position:absolute;left:0;right:0;top:150px;text-align:center}
+.hero::before{content:"";position:absolute;left:50%;top:0;width:168px;height:182px;margin-left:-84px;background:radial-gradient(circle at 25% 25%,#3de8c8 0,transparent 45%),radial-gradient(circle at 75% 30%,#43b3fa 0,transparent 45%),radial-gradient(circle at 30% 78%,#2ff5c0 0,transparent 45%),radial-gradient(circle at 78% 78%,#55c8f0 0,transparent 45%);border-radius:50%;filter:blur(22px);opacity:.7}
+.hero img{position:relative;width:76px;height:auto;display:block;margin:46px auto 60px}
+.hero p{margin-top:22px;color:var(--blue);font-size:16px;line-height:1.5;font-weight:500}
+.search-hero{top:130px}
+.routine{position:absolute;left:55px;right:55px;top:473px;height:140px;border:4px solid var(--n95);border-radius:20px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
+.routine .plus{width:32px;height:32px;border-radius:50%;background:var(--n95);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--n60);margin-bottom:6px}
+.routine b{font-size:16px}
+.routine span{font-size:12px;color:var(--n60);text-align:center;line-height:1.45}
+
+/* composer */
+.comp{position:absolute;left:20px;right:20px;border-radius:26px;background:var(--tint);z-index:4}
+.comp .lab{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 14px;color:var(--em);font-weight:700;font-size:14px}
+.comp .lab span{display:flex;align-items:center;gap:8px}
+.mi{width:20px;height:20px;border-radius:50%;background:var(--em);display:inline-flex;align-items:center;justify-content:center}
+.mi::after{content:"";width:9px;height:9px;border:2px solid #fff;border-radius:50%}
+.comp .box{margin-top:-6px;background:var(--n95);border-radius:26px;height:52px;display:flex;align-items:center;gap:6px;padding:0 8px 0 14px;color:var(--n60)}
+.comp input{flex:1;min-width:0;border:0;background:none;outline:0;font-size:14px;color:var(--n20);font-family:inherit}
+.comp input::placeholder{color:var(--n60)}
+.comp .plus{font-size:26px;color:var(--n60);line-height:1}
+.comp .mic{width:30px;height:30px}
+.comp .mic svg{width:20px;height:20px;fill:#444;margin:auto}
+.go{width:34px;height:34px;border-radius:50%;background:var(--blue2);display:flex;align-items:center;justify-content:center;flex:none}
+.go svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.go .wave{display:flex;gap:2px;align-items:center}
+.go .wave i{display:block;width:2.5px;background:#fff;border-radius:2px}
+.comp .arrow{display:none}
+.comp.filled .arrow{display:flex}
+.comp.filled .mic,.comp.filled .voice{display:none}
+.comp{bottom:calc(30px + var(--kb,0px));transition:bottom .15s}
+
+/* 키보드: 가상 키보드 없음. 실제 기기에서는 입력창 포커스 시 OS 키보드가 뜨고, 입력창이 키보드 위로 올라옴 */
+
+/* loading */
+.load .bgimg{display:none}
+.load::before{content:"";position:absolute;left:-20%;right:-20%;bottom:-18%;height:62%;background:radial-gradient(ellipse at 50% 60%,#14b4f5 0,#2fd8ff 35%,rgba(120,220,255,.45) 60%,transparent 75%);filter:blur(14px)}
+.load .x{position:absolute;top:50px;right:18px;z-index:3}
+.logo-c{position:absolute;left:50%;top:252px;width:114px;height:114px;margin-left:-57px;border-radius:50%;background:linear-gradient(135deg,#1ff2c4,#43b3fa);display:flex;align-items:center;justify-content:center}
+.logo-c svg{width:52px;height:52px}
+.load h3{position:absolute;left:0;right:0;top:420px;text-align:center;font-size:16px;font-weight:400;color:var(--n20)}
+.msgs{position:absolute;left:0;right:0;top:494px;height:70px;overflow:hidden;text-align:center;font-size:13.5px;line-height:23px;color:#0a6fb0}
+.msgs div{opacity:.35;transition:.3s}
+.msgs div.on{opacity:1}
+
+/* answer */
+.ans{position:absolute;left:0;right:0;top:100px;bottom:0;overflow-y:auto;padding:0 20px 170px}
+.ubub{margin:0 0 22px auto;max-width:86%;width:fit-content;background:var(--n95);border-radius:20px 20px 4px 20px;padding:12px 18px;font-size:14px;line-height:1.5;margin-top:4px;word-break:break-all}
+.ahead{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;margin-bottom:18px}
+.ahead .mi{width:22px;height:22px}
+.abody{font-size:14px;line-height:1.55;color:#2a2a2a;white-space:pre-line}
+.acts{display:flex;gap:18px;margin:16px 0 14px;color:#666;font-size:15px}
+.chip{display:inline-block;border:1px solid #e5e5e5;border-radius:12px;padding:6px 10px;font-size:11.5px;color:#555}
+.time{font-size:12px;color:var(--n60);margin:10px 0 22px}
+.rel{font-size:12px;font-weight:700;margin-bottom:12px}
+.rq{display:block;background:#f6f6f6;border-radius:20px;padding:11px 16px;margin-bottom:12px;font-size:14px;width:fit-content;color:#333;text-align:left}
+
+/* history */
+.hs{margin:6px 20px 0;height:52px;border-radius:26px;background:var(--n95);display:flex;align-items:center;justify-content:space-between;padding:0 18px;color:var(--n60);font-size:14px}
+.hs svg{width:24px;height:24px;stroke:var(--blue);fill:none;stroke-width:2.2}
+.hh{display:flex;justify-content:space-between;padding:22px 20px 8px;font-size:14px;font-weight:700}
+.hh button{color:#f22;font-size:13px;font-weight:700}
+.hl{position:absolute;top:196px;bottom:0;left:0;right:0;overflow-y:auto}
+.hi{display:flex;gap:14px;padding:14px 20px;border-bottom:1px solid #eee;cursor:pointer}
+.hi .pin{color:var(--blue);font-size:15px;margin-top:2px}
+.hi b{display:block;font-weight:400;font-size:15px;color:#333}
+.hi small{display:block;font-size:11px;color:var(--n60);margin-top:4px}
+
+/* menu sheet */
+.dim{position:absolute;inset:0;background:#0007;z-index:20;display:none}
+.dim.show{display:block}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:62px;background:#fff;border-radius:22px 22px 0 0;padding:14px 20px;z-index:21;display:none;overflow-y:auto}
+.sheet.show{display:block}
+.sheet .grab{width:44px;height:4px;border-radius:2px;background:#ccc;margin:0 auto 16px}
+.sheet h4{text-align:center;color:var(--blue2);font-size:15px;margin-bottom:18px;position:relative}
+.sheet h4 button{position:absolute;right:0;top:-4px;font-size:22px;color:#222}
+.mc{border-radius:22px;overflow:hidden;margin-bottom:14px;cursor:pointer}
+.mc .h{padding:10px 16px;color:#fff;font-weight:700;font-size:15px}
+.mc .b{padding:18px 16px;font-size:13px;line-height:1.55;border-left:0}
+.mc.s .h{background:#43c6e8}.mc.s .b{background:#dff6fb}
+.mc{transition:opacity .15s}
+.mc.cur{opacity:.4;pointer-events:none}
+.mc.a .h{background:#43b3fa}.mc.a .b{background:#dff1ff}
+.mc.m .h{background:#ff80b9}.mc.m .b{background:#ffe8f3}
+.mc.g .h{background:#27b27a}.mc.g .b{background:#e0f7ec}
+
+.toast{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;transition:.3s;z-index:50;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.homebar{position:absolute;bottom:8px;left:50%;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:#111;z-index:6}
+
+/* side drawer (메인화면/1-1 메뉴 로그인-개인) */
+.drawer{position:absolute;left:0;top:0;bottom:0;width:348px;max-width:90%;background:#fff;z-index:22;padding:44px 16px 0;transform:translateX(-100%);transition:transform .25s;overflow-y:auto}
+.drawer.show{transform:none}
+.dr-top{display:flex;justify-content:flex-end;gap:22px;padding:20px 8px 0;font-size:11px;color:#555;text-align:center}
+.dr-top button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#444}
+.dr-top .c{width:16px;height:16px;border:1.5px solid #333;border-radius:50%;font-size:10px;line-height:13px;font-weight:700}
+.dr-prof{text-align:center;margin-top:8px}
+.dr-prof .av{width:76px;height:76px;border-radius:50%;border:1px solid #eee;margin:0 auto 8px;background:radial-gradient(circle at 50% 50%,#7ff0d4 0,#8ccbf7 50%,#fff 75%)}
+.dr-prof b{display:block;font-size:17px;font-weight:600;color:#222}
+.dr-prof span{display:block;margin-top:6px;font-size:14px;color:#666}
+.dr-quick{margin:20px 0 22px;background:#f4faff;border-radius:14px;padding:12px 0;display:flex}
+.dr-quick button{flex:1;font-size:14px;color:var(--blue);display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid #e0eefa}
+.dr-quick button:first-child{border-left:0}
+.dr-item{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 6px;height:60px;font-size:14px;color:var(--blue2);text-align:left}
+.dr-item span:first-child{display:flex;gap:12px;align-items:center}
+.dr-item .ch{color:#c8c8c8;font-size:18px}
+.dr-sep{height:10px;background:#f4f4f4;margin:6px -16px}
+.dr-item.g{color:#555;height:46px}
+.dr-item.g .ic{width:20px;height:20px;border:2px solid #666;border-radius:4px}
+.drim{position:absolute;inset:0;background:#0006;z-index:21;display:none}
+.drim.show{display:block}
+
+/* AI 에그리게이터 메뉴 (에그리게이터/1-1 메뉴) */
+.agg{position:absolute;left:0;right:0;bottom:0;top:62px;background:#fff;border-radius:22px 22px 0 0;z-index:23;display:none;padding:14px 20px}
+.agg.show{display:block}
+.agg .grab{width:44px;height:4px;border-radius:2px;background:#ccc;margin:0 auto 14px}
+.agg .hd{display:flex;align-items:center;justify-content:space-between;position:relative;height:36px}
+.agg .hd b{position:absolute;left:0;right:0;text-align:center;color:var(--blue);font-size:15px;pointer-events:none}
+.agg .hd button{font-size:22px;color:#222;width:36px;height:36px}
+.tabs{display:flex;gap:0;margin:14px 0 14px;font-size:15px}
+.tabs button{padding:0 12px;color:#999;position:relative}
+.tabs button.on{color:var(--blue);font-weight:700;padding-left:8px}
+.tabs button+button::before{content:"";position:absolute;left:0;top:4px;height:12px;border-left:1px solid #ddd}
+.recent{background:var(--n95);border-radius:12px;height:44px;padding:0 14px 0 20px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#444;margin-bottom:12px}
+.recent i{width:22px;height:22px;border-radius:50%;background:var(--blue);display:inline-block;position:relative}
+.recent i::after{content:"";position:absolute;left:7px;top:6px;width:6px;height:6px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)}
+.models{background:#43b3fa;color:#fff}
+.models button{display:flex;align-items:center;justify-content:space-between;width:100%;height:44px;padding:0 14px 0 16px;font-size:13px;font-weight:700;border-bottom:1px solid #ffffff55;text-align:left}
+.models button:last-child{border-bottom:0}
+.models button span:first-child{display:flex;gap:12px;align-items:center}
+.models .lg{width:20px;text-align:center;font-size:16px}
+.start{position:absolute;left:20px;right:20px;bottom:20px;height:64px;border-radius:32px;background:#e5e5e5;color:#aaa;font-size:16px}
+
+/* composer 모드 색 */
+.comp.m-agg{background:#b4e2ff}.comp.m-agg .lab{color:var(--blue)}.comp.m-agg .mi{background:var(--blue)}
+.comp.m-multi{background:#ffc1de}.comp.m-multi .lab{color:#e0147a}.comp.m-multi .mi{background:#e0147a}
+.lt{font-weight:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+.comp .lab>span{min-width:0}
+.models .grp{border-bottom:1px solid #ffffff55}
+.models .grp:last-child{border-bottom:0}
+.models .grp>button{border-bottom:0}
+.models .grp.open>button .chev{transform:rotate(180deg)}
+.mlist{background:#e3f3fe}
+.mi2{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid #fff;cursor:pointer;color:#555;width:100%;text-align:left}
+.mi2 .st{color:#ccc;font-size:18px;line-height:1}
+.mi2 b{display:block;font-size:13px;font-weight:700;color:#555}
+.mi2 small{display:block;font-size:11px;color:#888;margin-top:3px}
+.mi2.sel{background:#b9e0fb}
+.mi2.sel b,.mi2.sel small{color:var(--blue)}
+.mi2.sel .st{color:#ffc400}
+.start.on{background:var(--blue);color:#fff}
+.agg.multi .hd b{color:#e0147a}
+.mpick{display:flex;align-items:center;gap:10px;margin:12px 0 4px;font-size:12px;color:#777;border-bottom:1px solid #eee;padding-bottom:10px}
+.mpick b{font-size:15px;color:#555}
+.models.pink{background:#f94f9a}
+.models.pink .mlist{background:#fff0f7}
+.models.pink .mi2.sel{background:#ffd3e8}
+.models.pink .mi2.sel b,.models.pink .mi2.sel small{color:#e0147a}
+.agg.multi .start.on{background:#e0147a}
+.agg.agent .hd b{color:#27a87a}
+.asr{margin:12px 0;height:52px;border:1.5px solid #42d6ae;border-radius:26px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;color:#999;font-size:14px}
+.asr span:last-child{color:#27b27a;font-size:20px}
+.agg.agent .recent i{background:#27b27a}
+.models.green{background:#27b27a}
+.msglist{height:calc(100% - 210px);overflow-y:auto}
+.agg.multi .msglist{height:calc(100% - 190px)}
+.cmp-note{color:#999;font-size:12px;padding:16px 4px}
+.models .mlist .mi2{justify-content:flex-start;align-items:flex-start;height:auto;padding:12px 16px;font-weight:400;border-bottom:1px solid #fff;text-align:left;gap:12px}
+.models .mlist .mi2>span:last-child{flex:1;text-align:left}
+.comp .lab{padding:12px 16px 14px 16px}
+.title-btn-area{cursor:default;flex:1;min-width:0}
+.comp.m-agg .title-btn-area,.comp.m-multi .title-btn-area{cursor:pointer}
+.arrow-btn{width:24px;height:24px;padding:0;flex:none;display:flex;align-items:center;justify-content:center;color:var(--em)}
+.arrow-btn svg{width:24px;height:24px}
+.comp.m-agg .arrow-btn{color:var(--blue)}.comp.m-multi .arrow-btn{color:#e0147a}
+.mi2.cur{pointer-events:none;background:#eee}
+.mi2.cur b,.mi2.cur small{color:#aaa}
+.toast.top{bottom:auto;top:92px}
+
+/* ===== 에이전트 ===== */
+.comp.m-agent{background:#b8f0d9}.comp.m-agent .lab{color:#1e8f66}.comp.m-agent .mi{background:#26b17e}.comp.m-agent .arrow-btn{color:#1e8f66}
+.comp.m-agent .title-btn-area{cursor:pointer}
+.rpt{margin-top:-6px;width:100%;height:52px;border-radius:26px;background:#e5e5e5;color:#aaa;font-size:16px;font-weight:700;display:block}
+.rpt.on{background:#1e8f66;color:#fff}
+.ag-top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.tmp{display:flex;align-items:center;gap:6px;border:1px solid #bfe3f5;border-radius:18px;height:36px;padding:0 12px;font-size:12px;color:#0797f2;background:#fff}
+.tmp:disabled{opacity:.4;cursor:not-allowed}
+.ag-scroll{position:absolute;left:0;right:0;top:100px;bottom:0;overflow-y:auto;padding:10px 20px 190px;background:#f7f7f7}
+.ag-card{background:#fff;border-radius:20px;box-shadow:0 4px 14px #0001;margin-bottom:22px;overflow:hidden}
+.ag-card h5{background:#effaf5;color:#1e8f66;font-size:13px;padding:12px 16px;border-left:0;display:flex;align-items:center;gap:8px}
+.ag-card h5::before{content:"";width:3px;height:14px;background:#26b17e;border-radius:2px}
+.ag-body{padding:18px 16px 20px}
+.ag-f{margin-bottom:20px}
+.ag-f:last-child{margin-bottom:0}
+.ag-f label{display:block;font-size:14px;font-weight:700;margin-bottom:10px;color:#333}
+.ag-f label i{color:#f22;font-style:normal;margin-left:2px}
+.ag-in,.ag-sel,.ag-ta{width:100%;border:1px solid #e1e1e1;border-radius:10px;padding:0 14px;font-size:13px;font-family:inherit;color:#333;background:#fff;outline:0}
+.ag-in,.ag-sel{height:46px}
+.ag-in:focus,.ag-sel:focus,.ag-ta:focus{border-color:#26b17e}
+.ag-ta{height:104px;padding:12px 14px;resize:none;display:block}
+.ag-cnt{text-align:right;font-size:11px;color:#999;margin-top:-26px;padding-right:12px;position:relative;height:18px;margin-bottom:8px}
+.ag-note{font-size:13px;line-height:1.55;color:#333;margin-bottom:14px}
+.ag-file{display:inline-flex;align-items:center;gap:6px;border:1px solid #bfe3f5;border-radius:18px;height:34px;padding:0 14px;font-size:12px;color:#0797f2;background:#fff}
+.ag-file:disabled{opacity:.4;cursor:not-allowed}
+.ag-ans{position:absolute;left:0;right:0;top:100px;bottom:0;overflow-y:auto;padding:4px 0 40px;background:#f7f7f7}
+.ag-ans .mt{display:flex;align-items:center;gap:8px;padding:0 20px;font-weight:700;font-size:16px;margin:12px 0 14px}
+.ag-ans .mt .mi{background:#26b17e}
+.ag-ans img{display:block}
+.ag-ans .bn{width:350px;margin:0 20px 24px;border-radius:2px}
+.ag-ans .ct{width:100%}
+.ag-acts{display:flex;gap:20px;padding:6px 20px 0;color:#bbb;font-size:15px}
+.ag-time{padding:14px 20px 0;font-size:12px;color:#999}
+.agent-top-t{font-size:15px;font-weight:700;position:absolute;left:0;right:0;text-align:center;pointer-events:none}
+.s-bg{background:#f7f7f7}
+.models.green .mlist{background:#eefaf4}
+.models.green .mi2.sel{background:#c8efdc}
+.models.green .mi2.sel b,.models.green .mi2.sel small{color:#1e8f66}
+.models.green .mi2.sel .st{color:#ffc400}
+.pro{display:inline-block;background:#1e8f66;color:#fff;font-size:9px;font-weight:700;border-radius:3px;padding:1px 4px;margin-right:6px;vertical-align:1px}
+.agg.agent .start.on{background:#1e8f66}
+.hi .pin.on{color:#0797f2}
+.models button b .pro{display:inline-block;width:auto;margin-right:6px}
+.models .mlist .mi2.cur{background:#e4e4e4}
+.models .mlist .mi2.cur b,.models .mlist .mi2.cur small{color:#aaa}
+.models .mlist .mi2.cur .st{color:#ccc}
+/* 도움말 팝업 (진입 16초 후 노출) */
+.giveup{position:absolute;top:36px;left:16px;right:16px;z-index:200;background:#fff;color:#14142b;border-radius:16px;padding:16px 16px 14px;box-shadow:0 10px 30px #000a;opacity:0;pointer-events:none;transform:translateY(-8px);transition:.3s;font-family:-apple-system,"Noto Sans KR","Apple SD Gothic Neo",sans-serif}
+.giveup.show{opacity:1;pointer-events:auto;transform:none}
+.giveup b{display:block;font-size:15px;font-weight:800;margin-bottom:4px}
+.giveup p{font-size:13px;line-height:1.5;color:#4a4d63;word-break:keep-all}
+.giveup .gu-row{display:flex;gap:8px;margin-top:12px}
+.giveup button{flex:1;height:40px;border-radius:10px;border:1px solid #cfd2e0;background:#f3f4f8;color:#555a72;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.giveup button.found{background:#eef0ff;border-color:#c9ceff;color:#4f46e5}
+</style>
+</head>
+<body>
+<div id="phone">
+
+  <!-- 통합검색/1 : 시작 화면 -->
+  <section id="s-home" class="screen bg" data-screen="통합검색/1">
+    <div class="sb"><span>9:41</span><i>▂▄▆ ◔ ▭</i></div>
+    <div class="top"><button class="ib" id="homeMenu" aria-label="메뉴"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+    <div class="hero"><img src="after_assets/group-23.png" alt=""><p>AI 포털 젤리아이<br>당신의 미래와 함께합니다.</p></div>
+    <div class="routine" id="routine"><div class="plus">+</div><b>루틴 설정하기</b><span>자주 보고싶은 정보를<br>매일 요약해 드려요</span></div>
+    <div class="comp dock" id="homeComp"><div class="lab"><span class="title-btn-area"><i class="mi"></i><b class="lt">통합 검색</b></span><button class="arrow-btn" aria-label="AI 포털 서비스 메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button></div>
+      <div class="box" id="homeBox"><span class="plus">+</span><span style="flex:1;font-size:14px">질문을 입력해주세요</span><button class="mic"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm6-4a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1A8 8 0 0 0 20 11z"/></svg></button><span class="go voice"><span class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:10px"></i><i style="height:16px"></i><i style="height:7px"></i></span></span></div></div>
+    <div class="homebar"></div>
+  </section>
+
+  <!-- 통합검색/2, 2-1 : 검색 입력 -->
+  <section id="s-search" class="screen bg kbshow" data-screen="통합검색/2 검색입력">
+    <div class="sb"><span>9:41</span><i>▂▄▆ ◔ ▭</i></div>
+    <div class="top"><button class="ib" id="searchBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button></div>
+    <div class="hero search-hero"><img src="after_assets/group-23.png" alt=""><p>AI 포털 젤리아이<br>당신의 미래와 함께합니다.</p></div>
+    <div class="comp" id="searchComp"><div class="lab"><span class="title-btn-area"><i class="mi"></i><b class="lt">통합 검색</b></span><button class="arrow-btn" aria-label="AI 포털 서비스 메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button></div>
+      <div class="box"><span class="plus">+</span><input id="searchIn" placeholder="질문을 입력해주세요" autocomplete="off"><button class="mic"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm6-4a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1A8 8 0 0 0 20 11z"/></svg></button><span class="go voice"><span class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:10px"></i><i style="height:16px"></i><i style="height:7px"></i></span></span><button class="go arrow" id="searchGo" aria-label="전송"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div></div>
+  </section>
+
+  <!-- 통합검색/3 : 로딩 -->
+  <section id="s-load" class="screen load" data-screen="통합검색/3 로딩">
+    <div class="sb"><span>9:41</span><i>▂▄▆ ◔ ▭</i></div>
+    <button class="ib x" id="loadClose" aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+    <div class="logo-c" id="logoC"><svg id="zSvg" viewBox="0 0 52 52"><rect x="6" y="9" width="40" height="13" rx="6.5" fill="#fff" transform="rotate(-35 26 26)"/><rect x="6" y="30" width="40" height="13" rx="6.5" fill="#fff" transform="rotate(-35 26 26) translate(-6 -4)"/></svg></div>
+    <h3 id="loadH">거의 다 되었습니다...</h3>
+    <div class="msgs" id="msgs"><div>입력된 내용을 정리하고 있어요</div><div>내용을 확인하고 있어요</div><div>내용을 검토하고 있어요</div></div>
+  </section>
+
+  <!-- 통합검색/4 : 답변 -->
+  <section id="s-ans" class="screen" data-screen="통합검색/4 답변 추출">
+    <div class="sb"><span>9:41</span><i>▂▄▆ ◔ ▭</i></div>
+    <div class="top"><button class="ib" id="ansBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><span class="t">입 속 물집 대처 방법</span><button class="ib" id="ansHist" aria-label="기록"><svg viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.500-2 6.500-2 9-.5V19c-2.500-1.500-5.500-1.500-9 .5-3.500-2-6.500-2-9-.5zM12 6v13.500"/></svg></button></div>
+    <div class="ans" id="ans">
+      <div class="ubub" id="ubub"></div>
+      <div class="ahead"><i class="mi"></i><span id="ahTxt">답변</span> <span style="font-weight:400">🔈</span></div>
+      <div class="abody">투명한 물집(작은 물방울 같은 것)과 심한 피로가 같이 있으시다면 가능한 원인과 대처법은 다음과 같습니다.
+
+가능한 원인
+
+단순포진(헤르페스 바이러스): 초기에 투명한 물집(수포)이 생겼다가 터지면 궤양이 됨. 통증 또는 작열감이 동반될 수 있음.
+점액류(뮤코셀): 입 안 점막의 침샘이 막혀 생기는 투명한 혹(보통 통증은 적음).
+바이러스성 감염(감기·독감·단핵구증 등): 전신 피로와 입안 병변이 함께 올 수 있음.
+약물/스트레스·영양 결핍에 따른 재발성 구내염: 보통 흰색 또는 회백색 중심의 궤양이 많음.
+자가 관리(증상 완화)
+
+따뜻한 소금물 가글(하루 몇 번)로 청결 유지.
+자극적 음식(매운/짠/산성) 피하기, 입술·점막을 건조하지 않게 보습.
+진통제(예: 이부프로펜, 아세트아미노펜)로 통증·발열 완화.
+국소 가글제나 구강용 젤(약국 상담) 사용 가능.
+충분한 휴식과 수분·영양 섭취.
+즉시 진료가 필요한 경우
+
+물집이 48–72시간 내에 악화하거나 커지거나 매우 아플 때
+고열, 목이 심하게 붓거나 삼키기/호흡 곤란이 있을 때
+여러 부위에 퍼지거나 재발이 잦고 면역저하(항암치료, 스테로이드 등) 상태일 때
+일주일 이상 호전 없을 때
+의사 방문 시 도움되는 정보
+
+물집 위치(입술·혀·볼 안쪽·잇몸 등), 크기·개수, 통증 유무, 언제 처음 생겼는지, 최근 감기·발열·스트레스·약 복용 여부, 기타 증상(림프절 붓기, 인후통, 발진 등).
+원하시면 물집 사진(모자이크 없이 잘 찍힌 근접 사진)과 함께 위치·증상 자세히 알려주시면 좀 더 구체적으로 판단해 드리겠습니다.</div>
+      <div class="acts"><span>👍</span><span>👎</span><span>🔇</span><span>⤴</span><span>⧉</span><span>⋮</span></div>
+      <span class="chip">답변 출처</span>
+      <div class="time">20:43</div>
+      <div class="rel">📶 관련 추가 질문</div>
+      <button class="rq">입터짐 원인</button><button class="rq">배고픔 줄이는 법</button><button class="rq">입 주변이 텄을 때 해결법</button>
+    </div>
+    <div class="comp dock" id="ansComp"><div class="lab"><span class="title-btn-area"><i class="mi"></i><b class="lt">통합 검색</b></span><button class="arrow-btn" aria-label="AI 포털 서비스 메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button></div>
+      <div class="box"><span class="plus">+</span><input id="ansIn" placeholder="질문을 입력해주세요" autocomplete="off"><button class="mic"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm6-4a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1A8 8 0 0 0 20 11z"/></svg></button><span class="go voice"><span class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:10px"></i><i style="height:16px"></i><i style="height:7px"></i></span></span><button class="go arrow" id="ansGo" aria-label="전송"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div></div>
+    <div class="homebar"></div>
+  </section>
+
+  <!-- 통합검색/5 : 기록 -->
+  <section id="s-hist" class="screen" data-screen="통합검색/5 기록">
+    <div class="sb"><span>9:41</span><i>▂▄▆ ◔ ▭</i></div>
+    <div class="top"><button class="ib" id="histBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><span class="t">통합검색 기록</span></div>
+    <div class="hs"><span>검색하기</span><svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+    <div class="hh"><span>최근 검색</span><button id="delAll">전체 삭제</button></div>
+    <div class="hl" id="hl"></div>
+  </section>
+
+
+  <!-- 에이전트/2 프롬프트 입력창 -->
+  <section id="s-agent" class="screen s-bg" data-screen="에이전트/2 프롬프트 입력창">
+    <div class="sb"><span>9:41</span><i>▂▄▆ ◔ ▭</i></div>
+    <div class="ag-top"><button class="ib" id="agMenu" aria-label="메뉴"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><button class="tmp" disabled>💾 임시저장</button></div>
+    <div class="ag-scroll" id="agScroll">
+      <div class="ag-card"><h5>기업 및 규제 정보</h5><div class="ag-body">
+        <div class="ag-f"><label>업종<i>*</i></label><input class="ag-in" id="agIn" placeholder="예 : 제조업, 금융업, IT/서비스" autocomplete="off"></div>
+        <div class="ag-f"><label>규제/법률 분야<i>*</i></label><select class="ag-sel" id="agSel"><option value="" selected disabled>내용을 입력하세요</option><option>공정거래</option><option>개인정보보호</option><option>근로기준</option><option>산업안전</option></select></div>
+      </div></div>
+      <div class="ag-card"><h5>이슈 상세 및 목표</h5><div class="ag-body">
+        <div class="ag-f"><label>직면한 법률 이슈 및 리스크<i>*</i></label><textarea class="ag-ta" id="agT1" maxlength="500" placeholder="법적 리스크가 우려되는 상황, 내부 감사 결과 등 구체적인 이유를 기술해주세요."></textarea><div class="ag-cnt" id="agC1">0/500</div></div>
+        <div class="ag-f"><label>현재 준수 현황/규정 보유 여부<i>*</i></label><textarea class="ag-ta" id="agT2" maxlength="500" placeholder="관련 내부 규정 보유 여부, 최근 점검 이력 등을 간략히 기술해주세요."></textarea><div class="ag-cnt" id="agC2">0/500</div></div>
+        <div class="ag-f"><label>목표 및 기대효과<i>*</i></label><textarea class="ag-ta" id="agT3" maxlength="500" placeholder="이번 검토를 통해 달성하고자 하는 구체적인 목표"></textarea><div class="ag-cnt" id="agC3">0/500</div></div>
+      </div></div>
+      <div class="ag-card"><h5>관련 자료 첨부</h5><div class="ag-body">
+        <p class="ag-note">문서, 이미지 등 다양한 파일을 업로드할 수 있습니다.<br>(PDF, DOC, DOCX, JPG, PNG 등)<br><br>파일당 최대 10MB<br>최대 10개까지 업로드 가능</p>
+        <button class="ag-file" disabled>🖼 파일 추가</button>
+      </div></div>
+    </div>
+    <div class="comp m-agent" id="agComp"><div class="lab"><span class="title-btn-area"><i class="mi"></i><b class="lt">에이전트</b></span><button class="arrow-btn" aria-label="AI 포털 서비스 메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button></div>
+      <button class="rpt" id="agGo" disabled>리포트 생성</button></div>
+    <div class="homebar"></div>
+  </section>
+
+  <!-- 에이전트/4 추출 -->
+  <section id="s-agans" class="screen s-bg" data-screen="에이전트/4 추출">
+    <div class="sb"><span>9:41</span><i>▂▄▆ ◔ ▭</i></div>
+    <div class="top"><button class="ib" id="agAnsBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><span class="agent-top-t">제조업 대상 실행 권고안</span><button class="ib" id="agAnsHist" aria-label="기록"><svg viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.500-2 6.500-2 9-.5V19c-2.500-1.500-5.500-1.500-9 .5-3.500-2-6.500-2-9-.5zM12 6v13.500"/></svg></button></div>
+    <div class="ag-ans">
+      <div class="mt"><i class="mi"></i>기업 법무 &amp; 준법 감시 답변 <span style="font-weight:400;color:#bbb">🔈</span></div>
+      <img class="bn" src="after_assets/image-53.png" alt="">
+      <img class="ct" src="after_assets/frame-338.png" alt="기업 법무 & 준법 감시 답변 본문">
+      <div class="ag-acts"><span>👍</span><span>👎</span><span>🔈</span><span>⤴</span><span>⧉</span><span>⋮</span></div>
+      <div class="ag-time">20:43</div>
+    </div>
+  </section>
+
+  <!-- 에이전트/5 기록 -->
+  <section id="s-ahist" class="screen" data-screen="에이전트/5 기록">
+    <div class="sb"><span>9:41</span><i>▂▄▆ ◔ ▭</i></div>
+    <div class="top"><button class="ib" id="agHistBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><span class="t">에이전트 기록</span></div>
+    <div class="hs"><span>검색하기</span><svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+    <div class="hh"><span>최근 검색</span><button id="agDelAll">전체 삭제</button></div>
+    <div class="hl" id="ahl"></div>
+  </section>
+
+  <!-- AI 포털 메뉴 바텀시트 -->
+  <div class="dim" id="dim"></div>
+  <div class="sheet" id="sheet">
+    <div class="grab"></div>
+    <h4>AI 포털 서비스<button id="sheetClose" aria-label="닫기">✕</button></h4>
+    <div class="mc s" data-m="search"><div class="h">통합 검색</div><div class="b">언제 어디서나 간편하게<br><b>실시간 통합 검색 기술을 경험하세요</b></div></div>
+    <div class="mc a" data-m="agg"><div class="h">AI 에그리게이터</div><div class="b"><b>GPT, Gemini, Claude, GROK</b> 등<br>최신 AI를 자유롭게<br>선택해 이용해보세요</div></div>
+    <div class="mc m" data-m="multi"><div class="h">AI 멀티브레인</div><div class="b"><b>최대 6개의 AI를 동시에 구동</b>시켜<br>신뢰도 높은<br>초강력 AI 오케스트레이션을 경험하세요</div></div>
+    <div class="mc g" data-m="agent"><div class="h">AI 에이전트</div><div class="b"><b>나의 경쟁력이 되는 AI 전문비서</b><br>8개 분야 90개의 AI 비서를<br>마음껏 활용하세요</div></div>
+  </div>
+
+  <!-- 메인화면/1-1 메뉴 로그인-개인 : 사이드 메뉴 -->
+  <div class="drim" id="drim"></div>
+  <aside class="drawer" id="drawer" data-screen="메인화면/1-1 메뉴 로그인-개인">
+    <div class="dr-top"><button data-oos><span class="c">?</span>문의</button><button data-oos><span style="font-size:17px;line-height:16px">⚙</span>설정</button></div>
+    <div class="dr-prof"><div class="av"></div><b>김보미</b><span>💊 개인 &nbsp;20k</span></div>
+    <div class="dr-quick"><button data-oos><span>🔖</span>북마크</button><button data-oos><span>📖</span>나의기록</button><button data-oos><span>☆</span>즐겨찾기</button></div>
+    <button class="dr-item" id="drHome"><span><span>🏠</span>홈</span><span class="ch">›</span></button>
+    <button class="dr-item" data-oos><span><span>🧘</span>페르소나</span><span class="ch">›</span></button>
+    <button class="dr-item" data-oos><span><span>📰</span>젤리아이 소식</span><span class="ch">›</span></button>
+    <button class="dr-item" data-oos><span><span>💎</span>젤리아이 프로</span><span class="ch">›</span></button>
+    <div class="dr-sep"></div>
+    <button class="dr-item g" data-oos><span><i class="ic"></i>OCR</span></button>
+    <button class="dr-item g" data-oos><span><i class="ic"></i>대면 번역</span></button>
+  </aside>
+
+  <!-- 에그리게이터/1-1 메뉴 -->
+  <div class="agg" id="agg" data-screen="에그리게이터/1-1 메뉴">
+    <div class="grab"></div>
+    <div class="hd"><button id="aggBack" aria-label="뒤로">‹</button><b>에그리게이터</b><button id="aggClose" aria-label="닫기">✕</button></div>
+    <div class="tabs"><button class="on">언어</button><button data-oos>이미지</button><button data-oos>음악</button><button data-oos>동영상</button></div>
+    <div class="recent" id="aggRecent"><span>최근 사용</span><i></i></div>
+    <div class="msglist"><div class="models" id="aggModels"></div></div>
+    <button class="start" id="aggStart" disabled>시작하기</button>
+  </div>
+
+  <!-- 멀티브레인/1-1 메뉴 -->
+  <div class="agg multi" id="multi" data-screen="멀티브레인/1-1 메뉴">
+    <div class="grab"></div>
+    <div class="hd"><button id="multiBack" aria-label="뒤로">‹</button><b>멀티브레인</b><button id="multiClose" aria-label="닫기">✕</button></div>
+    <div class="mpick"><b id="multiCnt">선택(0/6)</b><span>선택된 모델을 한번 더 클릭하면 취소됩니다</span></div>
+    <div class="msglist" style="height:calc(100% - 200px)"><div class="models pink" id="multiModels"></div></div>
+    <button class="start" id="multiStart" disabled>시작하기</button>
+  </div>
+
+  <!-- 에이전트/1-1 메뉴 -->
+  <div class="agg agent" id="agent" data-screen="에이전트/1-1 메뉴">
+    <div class="grab"></div>
+    <div class="hd"><button id="agentBack" aria-label="뒤로">‹</button><b>에이전트</b><button id="agentClose" aria-label="닫기">✕</button></div>
+    <div class="asr"><span>검색하기</span><span>⌕</span></div>
+    <div class="recent"><span>최근 사용</span><i></i></div>
+    <div class="msglist" style="height:calc(100% - 270px)"><div class="models green" id="agentCats"></div></div>
+    <button class="start" id="agentStart" disabled>시작하기</button>
+  </div>
+
+  <div class="giveup" id="giveUpBox" role="dialog" aria-label="모델 선택 도움말"><b>모델 선택을 못찾으셨나요?</b><div class="gu-row"><button id="giveUp" type="button">[포기할래요]</button><button id="foundIt" type="button" class="found">[찾았어요]</button></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const screens=['s-home','s-search','s-load','s-ans','s-hist','s-agent','s-agans','s-ahist'];
+const state={screen:'s-home',prev:'s-home',query:'',loadTimer:null,msgTimer:null,loadKind:'chat'};
+const HISTORY=[['사당역 근처 맛집','grok-4'],['칼국수 맛집','Gemini-2.5-flash'],['주식 : 코스피','gpt-5-mini'],['인스탁스 필름','Gemini-2.5-flash-lite'],['2026 엔디비아 주가 변동','gpt-5-nano'],['에그팜 오프라인 위치','gpt-5-mini'],['감자튀김과 콜레스테롤의 상관관계','Gemini-2.5-flash-lite'],['코닥 필름카메라 가격','gpt-5-mini']];
+
+function toast(t,top){const e=$('toast');e.textContent=t;e.classList.toggle('top',!!top);e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),1800)}
+function show(id){
+  clearTimeout(state.loadTimer);clearInterval(state.msgTimer);
+  state.prev=state.screen;state.screen=id;
+  screens.forEach(s=>$(s).classList.toggle('active',s===id));
+  if(id==='s-search'){$('searchIn').focus({preventScroll:true})}
+  if(id==='s-load'){startLoading()}
+  closeSheet();closeDrawer();
+}
+function startLoading(){
+  const m=[...$('msgs').children];let i=0;
+  const paint=()=>m.forEach((el,k)=>el.classList.toggle('on',k===i%m.length));
+  paint();state.msgTimer=setInterval(()=>{i++;paint()},700);
+  state.loadTimer=setTimeout(()=>{clearInterval(state.msgTimer);showAnswer()},2600);
+}
+function showAnswer(){
+  if(state.loadKind==='agent'){show('s-agans');$('s-agans').querySelector('.ag-ans').scrollTop=0;return}
+  $('ubub').textContent=state.query||'입에 뭐 물집같은거 하나 생겼어';
+  $('ans').scrollTop=0;
+  show('s-ans');
+}
+function ask(q){
+  q=(q||'').trim();if(!q)return;
+  setLoadKind('chat');
+  state.query=q;
+  $('searchIn').value='';$('ansIn').value='';
+  syncFilled();
+  show('s-load');
+}
+function syncFilled(){
+  $('searchComp').classList.toggle('filled',$('searchIn').value.trim().length>0);
+  $('ansComp').classList.toggle('filled',$('ansIn').value.trim().length>0);
+}
+
+// 홈
+$('homeBox').onclick=()=>show('s-search');
+$('homeMenu').onclick=openDrawer;
+$('routine').onclick=()=>toast('루틴 설정은 이번 프로토타입 범위 밖입니다');
+// 검색
+$('searchIn').oninput=syncFilled;
+$('searchIn').onkeydown=e=>{if(e.key==='Enter')ask($('searchIn').value)};
+$('searchGo').onclick=()=>ask($('searchIn').value);
+// 로딩
+$('loadClose').onclick=()=>show(state.loadKind==='agent'?'s-agent':'s-home');
+// 답변
+$('ansBack').onclick=()=>show('s-home');
+$('ansHist').onclick=()=>show('s-hist');
+$('ansIn').oninput=syncFilled;
+$('ansIn').onkeydown=e=>{if(e.key==='Enter')ask($('ansIn').value)};
+$('ansGo').onclick=()=>ask($('ansIn').value);
+document.querySelectorAll('.rq').forEach(b=>b.onclick=()=>ask(b.textContent));
+// 기록
+$('histBack').onclick=()=>show('s-ans');
+$('delAll').onclick=()=>toast('전체 삭제는 이번 프로토타입 범위 밖입니다');
+$('hl').innerHTML=HISTORY.map(([q,m])=>`<div class="hi" data-q="${q}"><span class="pin">📌</span><div><b>${q}</b><small>${m}</small></div></div>`).join('');
+document.querySelectorAll('.hi').forEach(el=>el.onclick=()=>ask(el.dataset.q));
+// 메뉴
+function openSheet(){changing=false;document.querySelectorAll('.mc').forEach(c=>c.classList.toggle('cur',c.dataset.m===({search:'search',agg:'agg',multi:'multi',agent:'agent'})[mode.type]));if(typeof clearCur==='function'&&$('aggModels'))clearCur($('aggModels'));$('dim').classList.add('show');$('sheet').classList.add('show')}
+function closeSheet(){$('dim').classList.remove('show');$('sheet').classList.remove('show');['agg','multi','agent'].forEach(k=>$(k).classList.remove('show'))}
+function openDrawer(){$('drim').classList.add('show');$('drawer').classList.add('show')}
+function closeDrawer(){$('drim').classList.remove('show');$('drawer').classList.remove('show')}
+function openAgg(){$('sheet').classList.remove('show');$('dim').classList.add('show');$('agg').classList.add('show')}
+$('drim').onclick=closeDrawer;
+$('drHome').onclick=()=>{closeDrawer();show('s-home')};
+$('aggBack').onclick=()=>{$('agg').classList.remove('show');openSheet()};
+$('aggClose').onclick=closeSheet;
+document.querySelectorAll('[data-oos]').forEach(b=>b.addEventListener('click',()=>toast('이번 프로토타입 범위 밖입니다')));
+// 화살표 아이콘(24x24) → AI 포털 메뉴, title-btn-area → 모델 변경
+document.querySelectorAll('.arrow-btn').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openSheet()}));
+document.querySelectorAll('.title-btn-area').forEach(b=>b.addEventListener('click',()=>{
+  if(mode.type==='agg')openModelChange('agg');
+  else if(mode.type==='multi')openModelChange('multi');
+}));
+$('dim').onclick=closeSheet;$('sheetClose').onclick=closeSheet;
+document.querySelectorAll('.mc').forEach(c=>c.onclick=()=>{
+  if(c.dataset.m==='search'){mode.type='search';mode.models=[];applyMode();closeSheet()}
+  else if(c.dataset.m==='agg'){openAgg()}
+  else if(c.dataset.m==='multi'){$('sheet').classList.remove('show');$('multi').classList.add('show')}
+  else if(c.dataset.m==='agent'){$('sheet').classList.remove('show');$('agent').classList.add('show')}
+});
+// 마이크/음성
+document.querySelectorAll('.mic,.voice').forEach(b=>b.addEventListener('click',()=>toast('음성 입력은 이번 프로토타입 범위 밖입니다')));
+
+// 모바일 실제 키보드: 키보드 높이만큼 입력창을 위로 올림 (노트북에서는 0)
+(function(){
+  const vv=window.visualViewport;if(!vv)return;
+  const upd=()=>{
+    const kb=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));
+    document.documentElement.style.setProperty('--kb',kb+'px');
+  };
+  vv.addEventListener('resize',upd);vv.addEventListener('scroll',upd);upd();
+})();
+
+
+// ===== 모드(통합검색 / 에그리게이터 / 멀티브레인) =====
+const MODELS={
+ Gemini:[['gemini-3-pro','복잡한 질문과 이미지 분석에 가장 강한 만능 브레인'],['gemini-2.5-pro','복잡한 문제도, 긴 문서도 한눈에 꿰뚫는 든든한 해결사'],['gemini-2.5-flash','빠른 속도로 대량의 정보를 처리'],['gemini-2.5-flash-lite','가볍고 민첩하게, 핵심만 골라는 가성비']],
+ GPT:[['gpt-5.2','오류율 30% 감소, 장문·추론·코딩 전방위 정확도 향상'],['gpt-5.1','명확하고 편안한 설명 능력, 전반적 응답 품질 개선'],['gpt-5','STEM 분야 전문성과 복잡한 분석 작업의 최고 정확도'],['gpt-5-mini','비용-성능 균형 최적화, GPT-5 대비 비용 10배 저렴']],
+ Claude:[['claude-opus-4.5','']],
+ GROK:[['grok-code',''],['grok-4','']]
+};
+const LOGO={Gemini:'✦',GPT:'❂',Claude:'✳',GROK:'⊘'};
+const AGENT_CATS=['라이프스타일/일상','교육/학습','의료/헬스케어','법률/계약','경영지원','IT/개발','디자인/크리에이티브','마케팅/광고/콘텐츠'];
+const mode={type:'search',models:[]};
+function applyMode(){
+  const label=mode.type==='agent'?`에이전트 ${mode.models[0]}`:mode.type==='agg'?`에그리게이터 ${mode.models[0]}`:mode.type==='multi'?`멀티브레인 ${mode.models.join(', ')}`:'통합 검색';
+  document.querySelectorAll('.comp').forEach(c=>{
+    c.classList.remove('m-agg','m-multi','m-agent');if(mode.type==='agent')c.classList.add('m-agent');
+    if(mode.type==='agg')c.classList.add('m-agg');
+    if(mode.type==='multi')c.classList.add('m-multi');
+    c.querySelector('.lt').textContent=label;
+  });
+  $('ahTxt').textContent=mode.type==='agg'?`${mode.models[0]} 답변`:mode.type==='multi'?`${mode.models[0]} 외 답변`:'답변';
+  // 에그리게이터/멀티브레인 채팅(2-1)에서는 좌상단이 메뉴(햄버거)
+  const sb=$('searchBack');
+  sb.dataset.mode=mode.type==='search'?'back':'menu';
+  sb.innerHTML=mode.type==='search'?'<svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>':'<svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+}
+$('searchBack').onclick=()=>{ $('searchBack').dataset.mode==='menu'?openDrawer():show('s-home') };
+
+function renderAcc(box,opts){ // opts:{multi,onChange}
+  box.innerHTML=Object.entries(MODELS).map(([g,list])=>`
+   <div class="grp" data-g="${g}"><button class="gb"><span><span class="lg">${LOGO[g]}</span>${g}</span><span class="chev">⌄</span></button>
+   <div class="mlist" style="display:none">${list.map(([n,d])=>`<button class="mi2" data-n="${n}"><span class="st">★</span><span><b>${n}</b>${d?`<small>${d}</small>`:''}</span></button>`).join('')}</div></div>`).join('');
+  box.querySelectorAll('.gb').forEach(b=>b.onclick=()=>{
+    const grp=b.parentElement,ml=grp.querySelector('.mlist'),open=ml.style.display==='none';
+    if(!opts.multi)box.querySelectorAll('.mlist').forEach(m=>m.style.display='none');
+    ml.style.display=open?'block':'none';
+    grp.classList.toggle('open',open);
+  });
+  box.querySelectorAll('.mi2').forEach(b=>b.onclick=()=>opts.onPick(b.dataset.n,box));
+}
+// 에그리게이터
+let aggSel=null;
+renderAcc($('aggModels'),{onPick:(n,box)=>{
+  aggSel=n;
+  box.querySelectorAll('.mi2').forEach(x=>x.classList.toggle('sel',x.dataset.n===n));
+  $('aggStart').disabled=false;$('aggStart').classList.add('on');
+}});
+$('aggRecent').onclick=()=>toast('최근 사용 내역이 없습니다');
+$('aggStart').onclick=()=>{
+  if(!aggSel)return;
+  mode.type='agg';mode.models=[aggSel];applyMode();
+  closeSheet();$('searchIn').value='';syncFilled();show('s-search');
+};
+// 멀티브레인
+const multiSel=[];
+renderAcc($('multiModels'),{multi:true,onPick:(n,box)=>{
+  const i=multiSel.indexOf(n);
+  if(i>=0)multiSel.splice(i,1);
+  else if(multiSel.length>=6){toast('최대 6개까지 선택할 수 있습니다');return}
+  else multiSel.push(n);
+  box.querySelectorAll('.mi2').forEach(x=>x.classList.toggle('sel',multiSel.includes(x.dataset.n)));
+  $('multiCnt').textContent=`선택(${multiSel.length}/6)`;
+  const on=multiSel.length>0;$('multiStart').disabled=!on;$('multiStart').classList.toggle('on',on);
+}});
+$('multiStart').onclick=()=>{
+  if(!multiSel.length)return;
+  mode.type='multi';mode.models=[...multiSel];applyMode();
+  closeSheet();$('searchIn').value='';syncFilled();show('s-search');
+};
+// 에이전트 (아래 별도 블록)
+// 뒤로/닫기
+['multi','agent'].forEach(k=>{
+  $(k+'Back').onclick=()=>{$(k).classList.remove('show');openSheet()};
+  $(k+'Close').onclick=closeSheet;
+});
+applyMode();
+
+// ===== 에이전트 =====
+const LAW_ITEMS=[['법률 상담 & 판례 분석','최신 판례 기반 법률 판단 지원',true],['기업 법무 & 준법 감시','기업 법적 리스크 사전 점검',false],['근로계약 상담 에이전트','임금·근로시간 등 근로법 검토',false],['부동산 계약 & 임대차','매매·임대차 계약 조건 검토',false]];
+let agentSel=null;
+function renderAgentMenu(){
+  const box=$('agentCats');
+  box.innerHTML=AGENT_CATS.map(c=>{
+    if(c!=='법률/계약')return `<div class="grp" data-c="${c}"><button class="gb" data-oos><span><span class="lg">▪</span>${c}</span><span class="chev">⌄</span></button></div>`;
+    return `<div class="grp" data-c="${c}"><button class="gb law"><span><span class="lg">▪</span>${c}</span><span class="chev">⌄</span></button>
+      <div class="mlist" style="display:none">${LAW_ITEMS.map(([n,d,pro])=>`<button class="mi2" data-n="${n}"><span class="st">★</span><span><b>${pro?'<span class="pro">Pro</span>':''}${n}</b><small>${d}</small></span></button>`).join('')}</div></div>`;
+  }).join('');
+  box.querySelectorAll('[data-oos]').forEach(b=>b.onclick=()=>toast('이번 프로토타입 범위 밖입니다'));
+  const law=box.querySelector('.gb.law');
+  law.onclick=()=>{const g=law.parentElement,ml=g.querySelector('.mlist'),open=ml.style.display==='none';ml.style.display=open?'block':'none';g.classList.toggle('open',open)};
+  box.querySelectorAll('.mi2').forEach(b=>b.onclick=()=>{
+    agentSel=b.dataset.n;
+    box.querySelectorAll('.mi2').forEach(x=>x.classList.toggle('sel',x===b));
+    $('agentStart').disabled=false;$('agentStart').classList.add('on');
+  });
+  agentSel=null;$('agentStart').disabled=true;$('agentStart').classList.remove('on');
+}
+renderAgentMenu();
+const AGENT_NAME='기업 법무 & 준법 감시';
+$('agentStart').onclick=()=>{
+  if(!agentSel)return;
+  if(agentSel!==AGENT_NAME){toast('이 에이전트는 이번 프로토타입 범위 밖입니다');return}
+  mode.type='agent';mode.models=[AGENT_NAME];applyMode();
+  changing=false;closeSheet();resetAgentForm();show('s-agent');
+};
+// 모델 변경 (title-btn-area): 현재 에이전트는 회색(선택 불가)
+const _omc=openModelChange;
+openModelChange=function(kind){
+  if(kind!=='agent')return _omc(kind);
+  changing=true;renderAgentMenu();
+  const box=$('agentCats');
+  box.querySelectorAll('.mi2').forEach(x=>x.classList.toggle('cur',x.dataset.n===mode.models[0]));
+  const g=box.querySelector('.grp[data-c="법률/계약"]');g.querySelector('.mlist').style.display='block';g.classList.add('open');
+  $('dim').classList.add('show');$('agent').classList.add('show');
+};
+document.querySelectorAll('.title-btn-area').forEach(b=>b.addEventListener('click',()=>{if(mode.type==='agent')openModelChange('agent')}));
+// 폼
+const agIds=['agIn','agSel','agT1','agT2','agT3'];
+function agCheck(){
+  const ok=agIds.every(i=>$(i).value.trim().length>0);
+  $('agGo').disabled=!ok;$('agGo').classList.toggle('on',ok);
+  [1,2,3].forEach(n=>$('agC'+n).textContent=`${$('agT'+n).value.length}/500`);
+}
+agIds.forEach(i=>{$(i).addEventListener('input',agCheck);$(i).addEventListener('change',agCheck)});
+function resetAgentForm(){agIds.forEach(i=>$(i).value='');agCheck();$('agScroll').scrollTop=0}
+$('agMenu').onclick=openDrawer;
+$('agGo').onclick=()=>{if($('agGo').disabled)return;setLoadKind('agent');show('s-load')};
+function setLoadKind(k){
+  state.loadKind=k;
+  const a=k==='agent';
+  $('loadH').textContent=a?'내용을 불러오고 있어요...':'거의 다 되었습니다...';
+  const t=a?['입력된 내용을 정리하고 있어요','관련 규제와 판례를 확인하고 있어요','법적 리스크를 검토하고 있어요']:['입력된 내용을 정리하고 있어요','내용을 확인하고 있어요','내용을 검토하고 있어요'];
+  [...$('msgs').children].forEach((el,i)=>el.textContent=t[i]);
+  $('zSvg').style.display=a?'none':'block';
+  let g=$('gavel');
+  if(a&&!g){g=document.createElement('div');g.id='gavel';g.style.cssText='font-size:46px;color:#fff;line-height:1';g.textContent='🔨';g.style.filter='grayscale(1) brightness(5)';$('logoC').appendChild(g)}
+  if(g)g.style.display=a?'block':'none';
+}
+// 답변 / 기록
+$('agAnsBack').onclick=()=>show('s-agent');
+$('agAnsHist').onclick=()=>show('s-ahist');
+$('agHistBack').onclick=()=>show('s-agans');
+$('agDelAll').onclick=()=>toast('전체 삭제는 이번 프로토타입 범위 밖입니다');
+const AHIST=[['제조업 대상 실행 권고안','grok-4',true],['SSG, 컬리 시계 할인 일정','Gemini-2.5-flash'],['20만원 안팎의 여성 지갑','gpt-5-mini'],['소형 강아지 생선 가시 목에 걸렸을 때','Gemini-2.5-flash-lite'],['잠 안올 때 호흡법','gpt-5-nano'],['차에서 최소 8시간 숙면 방법','gpt-5-mini'],['200일 선물 추천','Gemini-2.5-flash-lite'],['코닥 필름카메라 가격','gpt-5-nano'],['20만원 안팎의 여성 지갑','AI-model']];
+$('ahl').innerHTML=AHIST.map(([q,m,on])=>`<div class="hi" data-first="${on?1:0}"><span class="pin ${on?'on':''}">📌</span><div><b>${q}</b><small>${m}</small></div></div>`).join('');
+$('ahl').querySelectorAll('.hi').forEach(el=>el.onclick=()=>el.dataset.first==='1'?show('s-agans'):toast('이번 프로토타입 범위 밖입니다'));
+
+// ===== 모델 변경 (title-btn-area) =====
+let changing=false;
+function clearCur(box){box.querySelectorAll('.mi2').forEach(x=>x.classList.remove('cur'))}
+function openModelChange(kind){
+  changing=true;$('dim').classList.add('show');
+  if(kind==='agg'){
+    aggSel=null;const box=$('aggModels');
+    box.querySelectorAll('.mi2').forEach(x=>{x.classList.remove('sel');x.classList.toggle('cur',x.dataset.n===mode.models[0])});
+    box.querySelectorAll('.mlist').forEach(m=>m.style.display='none');box.querySelectorAll('.grp').forEach(g=>g.classList.remove('open'));
+    const g=box.querySelector('.mi2.cur').closest('.grp');g.querySelector('.mlist').style.display='block';g.classList.add('open');
+    $('aggStart').disabled=true;$('aggStart').classList.remove('on');
+    $('agg').classList.add('show');
+  }else{
+    multiSel.length=0;mode.models.forEach(n=>multiSel.push(n));
+    $('multiModels').querySelectorAll('.mi2').forEach(x=>x.classList.toggle('sel',multiSel.includes(x.dataset.n)));
+    $('multiCnt').textContent=`선택(${multiSel.length}/6)`;
+    $('multiStart').disabled=false;$('multiStart').classList.add('on');
+    $('multi').classList.add('show');
+  }
+}
+function endChange(){
+  changing=false;clearCur($('aggModels'));
+}
+$('aggStart').onclick=()=>{
+  if(!aggSel)return;
+  mode.type='agg';mode.models=[aggSel];applyMode();
+  closeSheet();
+  if(changing){endChange();toast('언어 모델이 변경되었습니다.',true);return}
+  $('searchIn').value='';syncFilled();show('s-search');
+};
+$('multiStart').onclick=()=>{
+  if(!multiSel.length)return;
+  mode.type='multi';mode.models=[...multiSel];applyMode();
+  closeSheet();
+  if(changing){endChange();toast('언어 모델이 변경되었습니다.',true);return}
+  $('searchIn').value='';syncFilled();show('s-search');
+};
+$('aggBack').onclick=()=>{$('agg').classList.remove('show');if(changing){endChange();closeSheet()}else openSheet()};
+$('multiBack').onclick=()=>{$('multi').classList.remove('show');if(changing){endChange();closeSheet()}else openSheet()};
+$('aggClose').onclick=()=>{endChange();closeSheet()};
+$('multiClose').onclick=()=>{endChange();closeSheet()};
+$('dim').onclick=()=>{endChange();closeSheet()};
+
+show('s-home');
+
+// 진입 16초 후 도움말 팝업 노출 → 두 버튼 모두 인트로로 이동
+setTimeout(()=>document.getElementById('giveUpBox').classList.add('show'),16000);
+// 팝업 선택 결과 저장 후 인트로로 복귀 (인트로의 설문 버튼 활성화 조건)
+function leaveToIntro(result){
+  try{localStorage.setItem('zeli_done_after','1');localStorage.setItem('zeli_result_after',result)}catch(e){}
+  location.href='index.html';
+}
+document.getElementById('giveUp').onclick=()=>leaveToIntro('giveup');
+document.getElementById('foundIt').onclick=()=>leaveToIntro('success');
+
+</script>
+</body>
+</html>

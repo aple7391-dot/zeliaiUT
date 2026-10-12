@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>zeliAI 프로토타입 (UT용)</title>
+<meta name="description" content="젤리아이 앱 UT 테스트용 프로토타입: AI 채팅 시작 > 설정 > 개발자 모드 ON > 홈(젤리아이 웹) 전환">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#2a2a2e;font-family:-apple-system,"Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;color:#e8e8ec;display:flex;justify-content:center;align-items:center;min-height:100vh}
+#phone{width:100%;max-width:412px;height:100vh;max-height:880px;background:#121419;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:0}
+@media(min-width:500px){#phone{border-radius:28px;box-shadow:0 20px 60px #000a}}
+#status{height:28px;font-size:12px;padding:6px 18px;display:flex;justify-content:space-between;color:#ddd;flex:none}
+main{flex:1;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;overflow-y:auto}
+.screen.active{display:block}
+
+/* bottom nav */
+nav{flex:none;height:76px;background:#16181e;display:flex;justify-content:space-around;align-items:flex-end;padding-bottom:8px;position:relative;border-top:1px solid #1f222a}
+nav button{background:none;border:0;color:#cfd2da;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:4px;width:20%;cursor:pointer;padding:6px 0;position:relative;transition:.25s}
+nav button svg{width:24px;height:24px;fill:currentColor}
+nav button.active{color:#8ab4ff}
+nav button.active .ic{position:absolute;top:-34px;width:68px;height:68px;border-radius:50%;background:#14161c;border:3px solid #2a2d36;display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px #0008}
+nav button.active .lb{margin-top:22px}
+nav button .ic{display:flex}
+nav button.hidden{display:none}
+
+/* voice-only home */
+.voice{display:flex;flex-direction:column;align-items:center;padding-top:80px;text-align:center}
+.voice h2{font-weight:400;font-size:20px;line-height:1.5}
+.mic-wrap{margin-top:70px;width:180px;height:180px;border-radius:50%;background:#0f2530;display:flex;align-items:center;justify-content:center;position:relative}
+.mic-wrap::before{content:"";position:absolute;width:150px;height:150px;border-radius:50%;border:1px solid #1c8fb0}
+.mic-btn{width:106px;height:106px;border-radius:50%;border:4px solid #1ee59a;background:#12161c;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 22px #1ee59a55;animation:pulse 2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 34px #1ee59aaa}}
+.mic-btn svg{width:46px;fill:#1ee59a}
+#voiceStatus{margin-top:24px;color:#8ab4ff;font-size:14px;min-height:20px}
+
+/* zeliai web */
+.web{background:#0b0b0b;font-family:Georgia,"Noto Serif KR",serif}
+.web header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.web .pager{display:flex;gap:2px;background:#161616;border:2px solid #2b2b2b;border-radius:8px;padding:6px;font-family:sans-serif;font-weight:700;color:#555}
+.web .pager span{width:36px;text-align:center;padding:6px 0}
+.web .pager .on{background:#18ff18;color:#0b3b0b;border-radius:8px;box-shadow:0 0 14px #18ff18}
+.zlogo{width:28px;height:28px;background:#1fb6e8;border-radius:4px;color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;font-family:sans-serif}
+.web h1{text-align:center;color:#18ff18;font-weight:400;font-size:30px;margin-top:6px;text-shadow:0 0 12px #18ff1855}
+.web h1+p{text-align:center;color:#1fb6e8;font-size:21px;font-weight:700;font-family:sans-serif;margin:10px 0 14px}
+.ad{margin:0 14px 14px;border-radius:12px;background:linear-gradient(90deg,#f6b4b4,#f3a0a8);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;font-family:sans-serif;font-size:14px;font-weight:700;height:66px}
+.ad b{color:#ffe14a}
+.ad .gp{font-size:15px;font-style:italic}
+.adimg{display:block;width:calc(100% - 28px);margin:0 14px 14px;border-radius:14px}
+.ad .face{width:46px;height:56px;border-radius:50% 50% 8px 8px;background:#f2d2c0;margin-top:10px}
+.card{margin:0 22px 14px;border:1px solid #2b2b2b;border-radius:12px;background:#111;padding:16px 18px}
+.card h3{color:#18ff18;font-weight:400;font-size:19px;margin-bottom:8px}
+.card p{font-family:sans-serif;font-size:13.5px;color:#ddd}
+.row{display:flex;margin:0 22px 14px;border:1px solid #2b2b2b;border-radius:12px;background:#111}
+.row .card{margin:0;border:0;flex:1;background:none}
+.row .card+.card{border-left:1px solid #2b2b2b}
+.webspace{padding-bottom:150px}
+.composer{position:absolute;left:0;right:0;bottom:0;background:#0b0b0b;border-top:1px solid #222;padding:10px 14px 8px;z-index:5}
+.composer .up{width:34px;height:30px;border:1px solid #18ff18;border-radius:6px;color:#18ff18;text-align:center;line-height:28px;margin-bottom:10px;font-family:sans-serif}
+.cbox{display:flex;gap:8px;border:1px solid #333;border-radius:8px;padding:8px;background:#101010;transition:.2s}
+.cbox:focus-within{border-color:#18ff18}
+.cbox input{flex:1;background:none;border:0;outline:0;color:#fff;font-size:14px;font-family:sans-serif}
+.cbox button{width:44px;height:44px;border:0;border-radius:6px;background:#0c7a1d;color:#000;font-size:18px;cursor:pointer}
+.composer small{display:block;margin-top:8px;color:#bbb;font-family:sans-serif;font-size:13px}
+
+/* chat w/ ads */
+.chatbody{padding:12px 14px 150px;font-family:sans-serif}
+.msg{padding:10px 14px;border-radius:14px;margin-bottom:10px;font-size:14px;line-height:1.5;max-width:85%}
+.msg.me{background:#0c7a1d;margin-left:auto}
+.msg.ai{background:#1b1d23}
+.pop{position:absolute;left:14px;right:14px;top:70px;background:#fff;color:#222;border-radius:12px;z-index:9;padding:18px;text-align:center;font-family:sans-serif;box-shadow:0 10px 40px #000;display:none}
+.pop.show{display:block}
+.pop h4{font-size:18px;color:#d22}
+.pop button{margin-top:12px;border:0;background:#999;color:#fff;border-radius:6px;padding:6px 14px}
+.strip{margin:10px 0;background:linear-gradient(90deg,#ffcf33,#ff7a33);color:#222;border-radius:8px;padding:12px;font-weight:700;font-size:13px;animation:blink 1.2s infinite}
+@keyframes blink{50%{filter:brightness(1.25)}}
+
+/* settings */
+.settings{padding:14px 20px 40px}
+.settings .item{padding:16px 0;border-bottom:1px solid #2a2d35}
+.settings .item small{display:block;color:#7a4be0;margin-top:4px}
+.settings .sec{color:#8ab4ff;font-size:13px;padding-top:14px}
+.settings .line{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.settings .line span{font-size:18px}
+.chk{color:#8ab4ff;font-size:22px}
+.sw{width:50px;height:26px;background:#555;border-radius:13px;position:relative;cursor:pointer;transition:.25s;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#ddd;transition:.25s}
+.sw.on{background:#506fa8}
+.sw.on::after{left:27px;background:#b8d0ff}
+.settings h4{color:#999;font-size:18px;margin:16px 0 14px;font-weight:700}
+.radio{display:flex;align-items:center;gap:14px;margin:14px 0}
+.radio i{width:22px;height:22px;border:2px solid #aaa;border-radius:50%}
+.radio.sel i{border-color:#8ab4ff;box-shadow:inset 0 0 0 4px #121419,inset 0 0 0 20px #8ab4ff}
+.save{margin-top:22px;width:100%;padding:14px;border:0;border-radius:6px;background:#9ec3ff;color:#123;font-weight:700;letter-spacing:1px}
+.toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:#333;padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;transition:.3s;z-index:20;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* realtime */
+.rt{display:flex;flex-direction:column;height:100%}
+.rt .half{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:26px 20px;font-size:13px}
+.rt .top{background:#4a4f55;transform:rotate(180deg)}
+.rt .lrow{display:flex;justify-content:space-between;align-items:center;width:100%;font-size:15px;padding-top:6px}
+.rt .caret{font-style:normal;font-size:12px;margin-left:6px}
+.rt .tts{display:flex;align-items:center;gap:8px}
+.rt .mini{width:36px;height:20px;border-radius:10px;background:#555;position:relative;display:inline-block}
+.rt .mini::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#ddd}
+.rt .circ{cursor:pointer;box-shadow:0 0 24px #17d6b955}
+.rt .wait{font-size:22px}
+.rt .circ{width:92px;height:92px;border-radius:50%;background:linear-gradient(135deg,#17d6b9,#1fe87a);display:flex;align-items:center;justify-content:center}
+.rt .circ svg{width:34px;fill:#123}
+.appbar{background:#a8c8ff;color:#12355f;font-size:21px;font-weight:700;padding:20px 18px}
+.pad{padding:16px 18px 30px}
+.ocrbox{background:#464a50;border-radius:18px;height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;font-size:14px;color:#ddd}
+.ocrbox svg{width:72px;fill:#c9ccd2}
+.pills{display:flex;gap:18px;margin:26px 0}
+.pill{flex:1;height:64px;border:0;border-radius:32px;background:#3c4452;color:#e8ecf4;font-size:16px;cursor:pointer}
+.panel{background:#1d1f25;border-radius:16px;padding:20px;font-size:14px;margin-bottom:20px}
+.panel .ph{display:flex;justify-content:space-between;font-size:16px;margin-bottom:22px}
+.panel.res{border:1px solid #8ab4ff;background:#161d2a}
+.langrow{display:flex;align-items:center;gap:12px;font-size:14px;margin-bottom:18px}
+.chip{border:1px solid #e8ecf4;border-radius:22px;padding:10px 30px;margin-right:auto}
+.tbtn{background:#2c3038;color:#888;border-radius:8px;padding:12px 24px}
+.search{background:#23262d;border-radius:28px;padding:16px 22px;display:flex;gap:14px;color:#aaa;margin-bottom:14px}
+.search input{flex:1;background:none;border:0;outline:0;color:#fff;font-size:16px}
+.total{font-size:14px;margin-bottom:12px}
+.hitem{background:#23262d;border-radius:16px;padding:18px;margin-bottom:18px}
+.hitem .d{display:flex;justify-content:space-between;font-size:13px;margin-bottom:12px;align-items:center}
+.hitem .x{color:#ff8a8a;font-size:20px;cursor:pointer}
+.hitem h5{font-size:16px;margin-bottom:8px}
+.hitem p{font-size:14px;line-height:1.55;color:#d8d8dc;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hitem .tag{display:inline-block;margin-top:10px;background:#3a4452;color:#a8c8ff;font-size:12px;padding:4px 10px;border-radius:4px}
+.empty{padding:90px 20px;text-align:center;color:#888}
+
+/* 포기하기 플로팅 버튼 (진입 16초 후 노출) */
+.giveup{position:absolute;top:36px;left:16px;right:16px;z-index:200;background:#fff;color:#14142b;border-radius:16px;padding:16px 16px 14px;box-shadow:0 10px 30px #000a;opacity:0;pointer-events:none;transform:translateY(-8px);transition:.3s;font-family:-apple-system,"Noto Sans KR","Apple SD Gothic Neo",sans-serif}
+.giveup.show{opacity:1;pointer-events:auto;transform:none}
+.giveup b{display:block;font-size:15px;font-weight:800;margin-bottom:4px}
+.giveup p{font-size:13px;line-height:1.5;color:#4a4d63;word-break:keep-all}
+.giveup .gu-row{display:flex;gap:8px;margin-top:12px}
+.giveup button{flex:1;height:40px;border-radius:10px;border:1px solid #cfd2e0;background:#f3f4f8;color:#555a72;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.giveup button.found{background:#eef0ff;border-color:#c9ceff;color:#4f46e5}
+</style>
+</head>
+<body>
+<div id="phone">
+  <div id="status"><span>4:09</span><span>▪ ▪ ▪ &nbsp; 91%</span></div>
+  <main>
+    <!-- AI 채팅 tab: voice-only -->
+    <section id="s-voice" class="screen">
+      <div class="voice">
+        <h2>마이크를 눌러 질문하시면<br>zeliAI가 답변해드립니다</h2>
+        <div class="mic-wrap"><div class="mic-btn" id="micBtn"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm6-4a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1A8 8 0 0 0 20 11z"/></svg></div></div>
+        <div id="voiceStatus"></div>
+      </div>
+    </section>
+
+    <!-- Home: Zeliai web (developer mode) -->
+    <section id="s-web" class="screen web">
+      <div class="webspace" id="webMain">
+        <header>
+          <span style="font-size:24px;color:#18ff18;font-family:sans-serif">☰</span>
+          <div class="pager"><span>0</span><span class="on">1</span><span>2</span></div>
+          <div class="zlogo">Z</div>
+          <span style="font-size:22px;font-family:sans-serif">ⓘ</span>
+          <span style="font-size:22px;font-family:sans-serif">👤</span>
+        </header>
+        <h1>세상의 모든 AI</h1>
+        <p>당신의 포털 젤리아이</p>
+        <img class="adimg" src="ad_banner.png" alt="굿피플 광고 배너">
+        <div class="card"><h3>최신 AI 뉴스</h3><p>AI Times에서 최신 AI 뉴스를 확인하세요</p></div>
+        <div class="row"><div class="card"><h3>법률 에이전트</h3><p>법률 상담 AI</p></div><div class="card"><h3>논문 에이전트</h3><p>논문 작성 도우미</p></div></div>
+        <div class="card"><h3>Multibrain</h3><p>여러 AI 모델 비교하기</p></div>
+        <div class="card"><h3>Aggregator</h3><p>원하는 AI 모델 선택하기</p></div>
+      </div>
+      <div class="chatbody" id="chatMain" style="display:none"></div>
+      <div class="pop" id="pop"><h4>🎉 특별 이벤트!</h4><p style="margin-top:8px">지금 프리미엄 가입 시 90% 할인<br>(광고)</p><button id="popClose">닫기 ✕</button></div>
+      <div class="composer">
+        <div class="up">^</div>
+        <div class="cbox"><input id="msgIn" placeholder="메시지를 입력하세요... (Shift+Enter로 줄바꿈)"><button id="sendBtn">➤</button></div>
+        <small>📎 파일</small>
+      </div>
+    </section>
+
+    <!-- OCR / history placeholders -->
+    <section id="s-ocr" class="screen">
+      <div class="appbar">젤리 OCR</div>
+      <div class="pad">
+        <div class="ocrbox"><svg viewBox="0 0 24 24"><path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3zm3 14a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg><p>카메라로 촬영하거나<br>갤러리에서 이미지를 선택하세요</p></div>
+        <div class="pills"><button class="pill" onclick="toast('카메라 (프로토타입)')">📷 카메라</button><button class="pill" onclick="toast('갤러리 (프로토타입)')">🖼 갤러리</button></div>
+        <div class="panel"><div class="ph"><b>📄 인식된 텍스트</b><span>❐</span></div><p>텍스트가 여기에 표시됩니다...</p></div>
+        <div class="langrow"><span>번역 언어:</span><span class="chip">한국어</span><span class="tbtn">🌐 번역</span></div>
+        <div class="panel res"><div class="ph"><b style="color:#8ab4ff">번역 결과</b><span>❐ &nbsp;🔊</span></div><p>번역 결과가 여기에 표시됩니다...</p></div>
+      </div>
+    </section>
+    <section id="s-hist" class="screen">
+      <div class="appbar">대화 기록</div>
+      <div class="pad">
+        <div class="search">🔍 <input id="hq" placeholder="대화 검색..."></div>
+        <div class="total" id="htotal"></div>
+        <div id="hlist"></div>
+      </div>
+    </section>
+    <!-- Home tab (default): translator -->
+    <section id="s-rt" class="screen">
+      <div class="rt">
+        <div class="half top"><div class="lrow"><span>English <i class="caret">▾</i></span><span class="tts">🔊 TTS <b class="mini"></b></span></div><div class="wait">Waiting for input...</div><div class="circ"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm6-4a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1A8 8 0 0 0 20 11z"/></svg></div></div>
+        <div class="half" style="background:#121419"><div class="lrow"><span>Korean <i class="caret">▾</i></span><span class="tts">🔊 TTS <b class="mini"></b></span></div><div class="wait">Waiting for input...</div><div class="circ"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm6-4a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1A8 8 0 0 0 20 11z"/></svg></div></div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="s-set" class="screen">
+      <div class="settings">
+        <div class="item" style="display:flex;justify-content:space-between"><div>뉴스 URL<small style="color:#8ab4ff">http://3.36.66.51/news/</small></div><span>›</span></div>
+        <div class="sec">앱 권한</div>
+        <div class="item" style="display:flex;justify-content:space-between"><div>카메라<small>허용됨</small></div><span class="chk">✓</span></div>
+        <div class="item" style="display:flex;justify-content:space-between"><div>마이크<small>허용됨</small></div><span class="chk">✓</span></div>
+        <div class="item" style="display:flex;justify-content:space-between;border:0"><div>위치 (GPS)<small>허용됨</small></div><span class="chk">✓</span></div>
+        <div class="line" style="border-top:1px solid #2a2d35"><span>개발자 모드</span><div class="sw" id="devSw"></div></div>
+        <div class="line" style="border-bottom:1px solid #2a2d35"><span>실시간 대화 모드 활성화</span><div class="sw" id="rtSw"></div></div>
+        <h4>TTS Engine (음성 합성)</h4>
+        <div class="radio sel"><i></i>기본 (빠름, 무료, 오프라인)</div>
+        <div class="radio"><i></i>고품질 (OpenAI, 느림, API Key 필요)</div>
+        <button class="save" id="saveBtn">TTS 설정 저장</button>
+      </div>
+    </section>
+  </main>
+  <div class="giveup" id="giveUpBox" role="dialog" aria-label="모델 선택 도움말"><b>모델 선택을 못찾으셨나요?</b><div class="gu-row"><button id="giveUp" type="button">[포기할래요]</button><button id="foundIt" type="button" class="found">[찾았어요]</button></div></div>
+  <div class="toast" id="toast"></div>
+  <nav id="nav"></nav>
+</div>
+
+<script>
+const icons={
+ ocr:'<path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3zm3 14a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>',
+ home:'<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>',
+ ai:'<path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm6-4a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1A8 8 0 0 0 20 11z"/>',
+ hist:'<path d="M13 3a9 9 0 0 0-9 9H1l4 4 4-4H6a7 7 0 1 1 2 5l-1.4 1.4A9 9 0 1 0 13 3zm-1 5v5l4 2 .8-1.3-3.3-1.7V8z"/>',
+ rt:'<path d="M12.9 15.9 10.4 13.4A17 17 0 0 0 14 7h3V5h-7V3H8v2H1v2h11a15 15 0 0 1-3 5.2A15 15 0 0 1 7 9H5a17 17 0 0 0 2.6 4.4L2.6 18.5 4 20l5-5 3 3zM18.5 10h-2L12 22h2l1.1-3h4.8l1.1 3h2zm-2.6 7 1.6-4.3 1.6 4.3z"/>',
+ set:'<path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7 7 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7 7 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7 7 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7 7 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/>'
+};
+const state={dev:false,tab:'ai'};
+const $=id=>document.getElementById(id);
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+
+function renderNav(){
+ // 홈 탭: 기본은 실시간 대화(번역기), 개발자 모드 ON이면 젤리아이 웹 뷰
+ let list=[['ocr','OCR','ocr'],['home',state.dev?'홈':'실시간 대화','home'],['ai','AI 채팅','ai'],['hist','기록','hist'],['set','설정','set']];
+ $('nav').innerHTML=list.map(([k,l,ic])=>`<button data-t="${k}" class="${state.tab===k?'active':''}"><span class="ic"><svg viewBox="0 0 24 24">${icons[ic]}</svg></span><span class="lb">${l}</span></button>`).join('');
+ $('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>go(b.dataset.t));
+}
+function go(t){
+ state.tab=t;
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ const id={home:state.dev?'s-web':'s-rt',ai:'s-voice',ocr:'s-ocr',hist:'s-hist',rt:'s-rt',set:'s-set'}[t];
+ $(id).classList.add('active');
+ renderNav();
+}
+$('devSw').onclick=()=>{state.dev=!state.dev;$('devSw').classList.toggle('on',state.dev);toast(state.dev?'개발자 모드 ON — 홈 탭에서 젤리아이 웹을 확인하세요':'개발자 모드 OFF')};
+$('rtSw').classList.add('on');$('rtSw').onclick=()=>$('rtSw').classList.toggle('on');
+$('saveBtn').onclick=()=>toast('TTS 설정이 저장되었습니다');
+$('micBtn').onclick=()=>{$('voiceStatus').textContent='🎙 듣고 있어요...';setTimeout(()=>$('voiceStatus').textContent='',2500)};
+
+// chat w/ ads
+function send(){
+ const v=$('msgIn').value.trim(); if(!v)return;
+ $('msgIn').value='';
+ $('webMain').style.display='none';
+ const c=$('chatMain');c.style.display='block';
+ c.innerHTML+=`<div class="msg me">${v.replace(/</g,'&lt;')}</div>`;
+ setTimeout(()=>{
+  c.innerHTML+=`<div class="strip">🔥 [광고] 오늘만 특가! 지금 바로 확인하세요 ▶</div><div class="msg ai">안녕하세요! 질문에 답변을 준비하고 있어요. 잠시만 기다려 주세요...</div><img class="adimg" style="margin:10px 0" src="ad_banner.png" alt="굿피플 광고 배너"><div class="strip" style="background:linear-gradient(90deg,#6ee7ff,#a78bfa)">📢 [광고] 신규 AI 서비스 무료 체험 ▶</div>`;
+  $('pop').classList.add('show');
+  $('s-web').scrollTop=1e5;
+ },700);
+}
+$('sendBtn').onclick=send;
+$('msgIn').onkeydown=e=>{if(e.key==='Enter')send()};
+$('popClose').onclick=()=>$('pop').classList.remove('show');
+let hist=[
+ ['2026.01.13 10:04','응 다낭','다낭에 대해 관심이 있으신가요? 다낭은 베트남 중부에 위치한 인기 있는 관광 도시로, 아름다운 해변과 다양한 문화 유적지가 매력적입니다. 아래 몇 가지 주요 정보 ...'],
+ ['2026.01.12 16:21','다낭 2박 3일 여행 일정 추천해 줘','네, 다낭 2박 3일 여행 일정을 추천해 드리겠습니다. 다낭은 베트남의 아름다운 해변 도시로, 다양한 관광명소와 맛있는 음식이 가득합니다. 아래는 기본적...'],
+ ['2026.01.12 16:21','사과가 영어로 뭐야','"사과"는 영어로 "Apple"입니다. 추가로 다른 번역이 필요하시면 말씀 주세요.']
+];
+function renderHist(){
+ const q=$('hq').value.trim();
+ const L=hist.map((h,i)=>[h,i]).filter(([h])=>!q||(h[1]+h[2]).includes(q));
+ $('htotal').textContent=`총 ${hist.length}개의 대화`;
+ $('hlist').innerHTML=L.map(([h,i])=>`<div class="hitem"><div class="d"><span>${h[0]}</span><span class="x" data-i="${i}">✕</span></div><h5>${h[1]}</h5><p>${h[2]}</p><span class="tag">프로 비서 현우</span></div>`).join('');
+ $('hlist').querySelectorAll('.x').forEach(x=>x.onclick=()=>{hist.splice(+x.dataset.i,1);renderHist()});
+}
+$('hq').oninput=renderHist;renderHist();
+go('ai'); // 시작 화면: AI 채팅
+
+// 진입 16초 후 상단에 "포기할래요" 플로팅 버튼 노출 → 인트로로 이동
+setTimeout(()=>document.getElementById('giveUpBox').classList.add('show'),16000);
+// 팝업 선택 결과 저장 후 인트로로 복귀 (인트로의 설문 버튼 활성화 조건)
+function leaveToIntro(result){
+  try{localStorage.setItem('zeli_done_before','1');localStorage.setItem('zeli_result_before',result)}catch(e){}
+  location.href='index.html';
+}
+document.getElementById('giveUp').onclick=()=>leaveToIntro('giveup');
+document.getElementById('foundIt').onclick=()=>leaveToIntro('success');
+
+</script>
+</body>
+</html>
