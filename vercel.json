@@ -1,0 +1,7 @@
+{
+  "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/(lib|scripts|supabase|data|node_modules)/(.*)", "destination": "/__blocked" },
+    { "source": "/(server\\.js|package\\.json|package-lock\\.json|\\.env\\.example)", "destination": "/__blocked" }
+  ]
+}
