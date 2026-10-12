@@ -24,6 +24,11 @@
       start: { before: 'public/assets/start_asis.jpg', after: 'public/assets/start_tobe.png' },
       chat: { before: 'public/assets/chat_asis.jpg', after: 'public/assets/chat_tobe.png' }
     },
+    // 원본 가로/세로(px): 이미지가 오기 전에 자리를 미리 잡는 데 사용
+    SIZES: {
+      start: { before: [1080, 2394], after: [780, 1525] },
+      chat: { before: [1080, 2394], after: [780, 1525] }
+    },
     ALT: {
       start: { before: LABELS.before + ' 시작 화면', after: LABELS.after + ' 시작 화면' },
       chat: { before: LABELS.before + ' 채팅 화면', after: LABELS.after + ' 채팅 화면' }

@@ -1,16 +1,70 @@
 /*
  * UT 행동 기록 (개선 전 / 개선 후 화면 공용)
- *  - 무엇을 눌렀는지(click), 어느 화면/오버레이에 머물렀는지(view), 언제 포기/성공을 눌렀는지(result)
- *  - 입력창에 적은 글자는 수집하지 않습니다. 버튼 문구/요소 이름/좌표만 기록합니다.
- *  - 전송: 믹스패널(환경변수 MIXPANEL_TOKEN 이 있을 때) → 없으면 /api/events(Supabase)
- *  - 사용법: <script src="track.js" data-variant="before"></script>
+ *
+ * 보려는 것
+ *   1) 어디서 헤매는가      → UT Idle(멈춰 있음), UT Click(dead_click: 반응 없는 곳 누름, 같은 곳 반복 클릭)
+ *   2) 어디에 오래 머무는가 → UT View(place, t_ms 로 체류 시간 계산)
+ *   3) 목표를 달성하지 않고 '성공했어요'를 눌렀는가
+ *        → UT Goal Reached 가 있는 세션과 UT Result(result=success, goal_reached=false) 비교
+ *
+ * 개인정보: 입력창에 적은 글자는 수집하지 않습니다. 버튼 문구/요소 이름/좌표/화면 이름만 기록합니다.
+ * 전송: 믹스패널(MIXPANEL_TOKEN 환경변수) → 토큰이 없으면 /api/events(Supabase)
+ * 사용법: <script src="track.js" data-variant="before"></script>
  */
 (function () {
   var me = document.currentScript;
   var VARIANT = (me && me.getAttribute('data-variant')) || 'unknown';
   var API = (me && me.getAttribute('data-api')) || 'api/events';
-  var OVERLAYS = ['sheet', 'agg', 'multi', 'agent', 'drawer', 'pop', 'giveUpBox'];
+  var CONFIG_API = (me && me.getAttribute('data-config')) || 'api/config';
+  var OVERLAYS = ['sheet', 'agg', 'multi', 'agent', 'drawer', 'pop', 'giveUpBox', 'taskTip'];
 
+  /* ---------- 사람이 읽는 이름 ---------- */
+  var SCREEN_LABEL = {
+    // 개선 전
+    's-voice': 'AI 채팅(음성)', 's-set': '설정', 's-web': '홈(개발자 모드·웹)', 's-rt': '실시간 대화', 's-ocr': 'OCR', 's-hist': '기록',
+    // 개선 후
+    's-home': '홈', 's-search': '질문 입력', 's-load': '로딩', 's-ans': '답변', 's-agent': '에이전트 입력',
+    's-agans': '에이전트 답변', 's-ahist': '에이전트 기록'
+  };
+  var OVERLAY_LABEL = {
+    sheet: 'AI 포털 메뉴', agg: '에그리게이터 메뉴', multi: '멀티브레인 메뉴', agent: '에이전트 메뉴', drawer: '사이드 메뉴',
+    pop: '팝업(광고)', giveUpBox: '도움말 팝업', taskTip: '과제 안내 문구'
+  };
+  var TAB_LABEL = { ocr: 'OCR', home: '홈', ai: 'AI 채팅', hist: '기록', set: '설정', rt: '실시간 대화' };
+
+  /* ---------- 퍼널: 목표(goal)를 달성했는지 판단하는 단계 ---------- */
+  function has(sel) { return !!document.querySelector(sel); }
+  var FUNNELS = {
+    // 개선 전: 설정 > 개발자 모드 ON > 홈(웹) 전환 이 목표
+    before: {
+      goal: 'web_home',
+      steps: [
+        ['settings_open', '설정 진입', function (c) { return c.screen === 's-set'; }],
+        ['devmode_on', '개발자 모드 켜기', function () { return has('#devSw.on'); }],
+        ['web_home', '홈(개발자 모드) 전환 = 목표', function (c) { return c.screen === 's-web'; }],
+        ['chat_sent', '메시지 전송', function () { return has('#chatMain .msg.me'); }]
+      ]
+    },
+    // 개선 후: 포털 메뉴 > 서비스 > 모델 선택 > 채팅 화면 진입 이 목표
+    after: {
+      goal: 'chat_entered',
+      steps: [
+        ['portal_open', 'AI 포털 메뉴 열기', function (c) { return c.overlay === 'sheet'; }],
+        ['service_open', '서비스 메뉴 열기', function (c) { return c.overlay === 'agg' || c.overlay === 'multi' || c.overlay === 'agent'; }],
+        ['model_picked', '모델/에이전트 선택', function () { return has('#aggModels .mi2.sel, #multiModels .mi2.sel, #agentCats .mi2.sel'); }],
+        ['chat_entered', '채팅 화면 진입 = 목표', function (c) {
+          if (c.screen === 's-agent') return true;
+          return (c.screen === 's-search' || c.screen === 's-load' || c.screen === 's-ans') &&
+            has('#s-search .comp.m-agg, #s-search .comp.m-multi');
+        }],
+        ['question_sent', '질문 전송', function (c) { return c.screen === 's-load'; }],
+        ['answer_shown', '답변 확인', function (c) { return c.screen === 's-ans' || c.screen === 's-agans'; }]
+      ]
+    }
+  };
+  var FUNNEL = FUNNELS[VARIANT] || { goal: null, steps: [] };
+
+  /* ---------- 공통 ---------- */
   function uuid() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
     var a = new Uint8Array(16);
@@ -33,6 +87,11 @@
   var seq = 0;
   var buf = [];
   var resultSent = false;
+  var hit = {};            // 도달한 퍼널 단계
+  var hitOrder = [];       // 도달 순서
+  var goalAt = null;       // 목표 달성 시각(ms)
+  var lastAct = Date.now();
+  var idleCount = 0;
 
   function ctx() {
     var s = document.querySelector('.screen.active');
@@ -42,18 +101,20 @@
       if (el && el.classList.contains('show')) { overlay = OVERLAYS[i]; break; }
     }
     var tab = document.querySelector('nav button.active');
-    return { screen: s ? s.id : null, overlay: overlay, tab: tab ? tab.getAttribute('data-t') : null };
+    var c = { screen: s ? s.id : null, overlay: overlay, tab: tab ? tab.getAttribute('data-t') : null };
+    c.place = overlay ? (OVERLAY_LABEL[overlay] || overlay) : (c.screen ? (SCREEN_LABEL[c.screen] || c.screen) : null);
+    return c;
   }
   function push(type, extra) {
     var c = ctx();
-    var e = { seq: ++seq, type: type, t: Date.now() - t0, screen: c.screen, overlay: c.overlay };
-    if (c.tab) e.tab = c.tab;
+    var e = { seq: ++seq, type: type, t: Date.now() - t0, screen: c.screen, overlay: c.overlay, place: c.place };
+    if (c.tab) { e.tab = c.tab; e.tab_label = TAB_LABEL[c.tab] || c.tab; }
     if (extra) for (var k in extra) if (extra[k] !== undefined && extra[k] !== null) e[k] = extra[k];
     buf.push(e);
     if (buf.length >= 25) flush();
   }
-  /* ----- 전송: Mixpanel(우선) / 토큰이 없으면 자체 서버(/api/events) ----- */
-  var CONFIG_API = (me && me.getAttribute('data-config')) || 'api/config';
+
+  /* ---------- 전송: Mixpanel(우선) / 토큰이 없으면 자체 서버(/api/events) ---------- */
   var CFG_KEY = 'zeli_track_cfg';
   var cfg = null;
   try { cfg = JSON.parse(ls(CFG_KEY) || 'null'); } catch (e) { cfg = null; }
@@ -65,7 +126,10 @@
     }).catch(function () { if (!cfg) cfg = { mp_token: null }; });
   } catch (e) { cfg = { mp_token: null }; }
 
-  var EVENT_NAME = { start: 'UT Start', view: 'UT View', click: 'UT Click', result: 'UT Result', hidden: 'UT Hidden' };
+  var EVENT_NAME = {
+    start: 'UT Start', view: 'UT View', click: 'UT Click', idle: 'UT Idle',
+    funnel: 'UT Funnel Step', goal: 'UT Goal Reached', result: 'UT Result', hidden: 'UT Hidden'
+  };
   function b64(str) { return btoa(unescape(encodeURIComponent(str))); }
   function post(url, body, type) {
     try {
@@ -73,19 +137,18 @@
     } catch (e) {}
     try { fetch(url, { method: 'POST', headers: { 'Content-Type': type }, body: body, keepalive: true, mode: 'no-cors' }); } catch (e) {}
   }
+  var PROPS = ['screen', 'overlay', 'place', 'tab', 'tab_label', 'target', 'label', 'x', 'y', 'clickable', 'dead_click',
+    'result', 'elapsed_ms', 'goal_reached', 'steps_hit', 'furthest_step_no', 'ms_to_goal', 'step', 'step_no', 'step_label',
+    'idle_ms', 'w', 'h'];
   function flush(final) {
     if (!buf.length) return;
     if (!cfg) { if (!final) return; cfg = { mp_token: null }; } // 설정을 아직 못 받았고 종료 중이면 폴백
     var evs = buf.splice(0, buf.length);
     if (cfg.mp_token) {
       var data = evs.map(function (e) {
-        var p = {
-          token: cfg.mp_token, distinct_id: pid, time: t0 + (e.t || 0), $insert_id: sid + '-' + e.seq,
-          variant: VARIANT, session_id: sid, t_ms: e.t, screen: e.screen, overlay: e.overlay, tab: e.tab,
-          target: e.target, label: e.label, x: e.x, y: e.y, result: e.result, elapsed_ms: e.elapsed_ms,
-          viewport_w: e.w, viewport_h: e.h
-        };
-        for (var k in p) if (p[k] === undefined || p[k] === null) delete p[k];
+        var p = { token: cfg.mp_token, distinct_id: pid, time: t0 + (e.t || 0), $insert_id: sid + '-' + e.seq,
+          variant: VARIANT, session_id: sid, t_ms: e.t };
+        PROPS.forEach(function (k) { if (e[k] !== undefined && e[k] !== null) p[k] = e[k]; });
         return { event: EVENT_NAME[e.type] || ('UT ' + e.type), properties: p };
       });
       post('https://' + (cfg.mp_host || 'api.mixpanel.com') + '/track?ip=0',
@@ -95,11 +158,33 @@
     }
   }
 
-  /* ----- 클릭: 어떤 요소를 눌렀는지 ----- */
-  var CLICKABLE = 'button,a,input,textarea,select,label,[role=button],[data-t],.sw,.item,.card,.mc,.mi2,.gb,.radio,.hi,.msg,.chip,.rq,.arrow-btn,.title-btn-area';
+  /* ---------- 퍼널 판정 ---------- */
+  function evalFunnel() {
+    var c = ctx();
+    FUNNEL.steps.forEach(function (st, i) {
+      if (hit[st[0]]) return;
+      var ok = false;
+      try { ok = !!st[2](c); } catch (e) {}
+      if (!ok) return;
+      hit[st[0]] = true; hitOrder.push(st[0]);
+      push('funnel', { step: st[0], step_no: i + 1, step_label: st[1] });
+      if (st[0] === FUNNEL.goal && goalAt === null) {
+        goalAt = Date.now() - t0;
+        push('goal', { step: st[0], step_no: i + 1, step_label: st[1], ms_to_goal: goalAt });
+      }
+    });
+  }
+  function furthest() {
+    var n = 0;
+    FUNNEL.steps.forEach(function (st, i) { if (hit[st[0]]) n = i + 1; });
+    return n;
+  }
+
+  /* ---------- 클릭: 어떤 요소를 눌렀는지 / 반응 없는 곳을 눌렀는지 ---------- */
+  var CLICKABLE = 'button,a,input,textarea,select,label,[role=button],[data-t],.sw,.item,.card,.mc,.mi2,.gb,.radio,.hi,.chip,.rq,.arrow-btn,.title-btn-area,.mic-btn,.circ,.composer';
   function describe(t) {
-    var el = t.closest ? t.closest(CLICKABLE) : null;
-    el = el || t;
+    var hitEl = t.closest ? t.closest(CLICKABLE) : null;
+    var el = hitEl || t;
     var label = '';
     var tag = (el.tagName || '').toLowerCase();
     if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
@@ -109,16 +194,18 @@
     return {
       target: (el.id ? '#' + el.id : tag + (cls ? '.' + cls : '')).slice(0, 60),
       label: label || undefined,
-      data: el.getAttribute && el.getAttribute('data-t') || undefined
+      clickable: !!hitEl
     };
   }
+  function act() { lastAct = Date.now(); idleCount = 0; }
+
   document.addEventListener('click', function (ev) {
+    act();
     var d = describe(ev.target);
     var box = (document.getElementById('phone') || document.documentElement).getBoundingClientRect();
     var x = box.width ? Math.round((ev.clientX - box.left) / box.width * 100) : undefined;
     var y = box.height ? Math.round((ev.clientY - box.top) / box.height * 100) : undefined;
 
-    // 포기 / 성공 버튼: 결과 이벤트 + 즉시 전송 (페이지가 바로 이동하므로)
     var res = null;
     if (ev.target.closest) {
       if (ev.target.closest('#giveUp')) res = 'giveup';
@@ -127,33 +214,60 @@
     if (res) {
       if (!resultSent) {
         resultSent = true;
-        push('result', { result: res, elapsed_ms: Date.now() - t0, target: d.target, label: d.label });
+        evalFunnel();
+        // 핵심: '성공했어요'를 눌렀지만 목표를 달성하지 않았다면 goal_reached=false
+        push('result', {
+          result: res, elapsed_ms: Date.now() - t0, target: d.target, label: d.label,
+          goal_reached: goalAt !== null, steps_hit: hitOrder.join('>') || 'none',
+          furthest_step_no: furthest(), ms_to_goal: goalAt !== null ? goalAt : undefined
+        });
       }
       flush(true);
       return;
     }
-    push('click', { target: d.target, label: d.label, x: x, y: y, data: d.data });
+    push('click', { target: d.target, label: d.label, x: x, y: y, clickable: d.clickable, dead_click: d.clickable ? undefined : true });
+    setTimeout(function () { evalFunnel(); check(); }, 0);   // 앱의 클릭 처리가 끝난 뒤 상태 판정
+    setTimeout(function () { evalFunnel(); check(); }, 350); // 로딩 후 전환되는 화면까지
   }, true);
+  ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach(function (n) {
+    document.addEventListener(n, act, { capture: true, passive: true });
+  });
 
-  /* ----- 화면/오버레이 전환: 어디서 얼마나 머물렀는지 ----- */
+  /* ---------- 화면/오버레이 전환: 어디서 얼마나 머물렀는지 ---------- */
   var last = '';
   var pending = false;
   function check() {
     pending = false;
     var c = ctx();
-    if (!c.screen) return; // 화면이 아직 정해지지 않은 순간은 기록하지 않음
-    var key = (c.screen || '') + '|' + (c.overlay || '') + '|' + (c.tab || '');
+    if (!c.screen) return;
+    var key = c.screen + '|' + (c.overlay || '') + '|' + (c.tab || '');
     if (key !== last) { last = key; push('view'); }
+    evalFunnel();
   }
   function schedule() { if (!pending) { pending = true; setTimeout(check, 0); } }
   try {
-    new MutationObserver(schedule).observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ['class'] });
+    new MutationObserver(schedule).observe(document.documentElement, {
+      attributes: true, subtree: true, childList: true, attributeFilter: ['class']
+    });
   } catch (e) {}
 
-  /* ----- 세션 시작 / 종료 ----- */
+  /* ---------- 멈춰 있음(주저함): 8초 동안 아무 조작이 없으면 기록 ---------- */
+  var IDLE_MS = 8000;
+  setInterval(function () {
+    if (resultSent || document.visibilityState === 'hidden') return;
+    var idle = Date.now() - lastAct;
+    if (idle >= IDLE_MS * (idleCount + 1) && idleCount < 8) {
+      idleCount++;
+      push('idle', { idle_ms: idle });
+    }
+  }, 1000);
+
+  /* ---------- 세션 시작 / 종료 ---------- */
   push('start', { w: window.innerWidth, h: window.innerHeight });
   check();
   setInterval(function () { flush(); }, 10000);
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { push('hidden'); flush(true); } });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') { push('hidden', { goal_reached: goalAt !== null, furthest_step_no: furthest() }); flush(true); }
+  });
   window.addEventListener('pagehide', function () { flush(true); });
 })();

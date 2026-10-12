@@ -24,6 +24,7 @@ function copyDir(rel) {
 
 ['index.html', 'before.html', 'after.html', 'survey.html', 'track.js', 'ad_banner.png'].forEach((f) => copyFile(f));
 copyDir('after_assets');
+copyDir('icons');
 // 사이트 루트가 public/ 이므로 이미지 경로의 'public/' 접두어를 제거
 copyFile(path.join('survey', 'config.js'), (t) => t.replace(/public\/assets\//g, 'assets/'));
 console.log('static files copied to public/');

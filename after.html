@@ -33,10 +33,6 @@ svg{display:block}
 .hero img{position:relative;width:76px;height:auto;display:block;margin:46px auto 60px}
 .hero p{margin-top:22px;color:var(--blue);font-size:16px;line-height:1.5;font-weight:500}
 .search-hero{top:130px}
-.routine{position:absolute;left:55px;right:55px;top:473px;height:140px;border:4px solid var(--n95);border-radius:20px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
-.routine .plus{width:32px;height:32px;border-radius:50%;background:var(--n95);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--n60);margin-bottom:6px}
-.routine b{font-size:16px}
-.routine span{font-size:12px;color:var(--n60);text-align:center;line-height:1.45}
 
 /* composer */
 .comp{position:absolute;left:20px;right:20px;border-radius:26px;background:var(--tint);z-index:4}
@@ -260,6 +256,34 @@ svg{display:block}
 .giveup .gu-row{display:flex;gap:8px;margin-top:12px}
 .giveup button{flex:1;height:40px;border-radius:10px;border:1px solid #cfd2e0;background:#f3f4f8;color:#555a72;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 .giveup button.found{background:#eef0ff;border-color:#c9ceff;color:#4f46e5}
+
+/* ===== 서비스/모델 아이콘 (icon/ 폴더의 SVG) ===== */
+.mi,.comp.m-agg .mi,.comp.m-multi .mi,.comp.m-agent .mi{width:24px;height:24px;border-radius:0;background:url(icons/search-on.svg) center/24px 24px no-repeat;display:inline-block;flex:none}
+.mi::after{display:none}
+.comp.m-agg .mi{background-image:url(icons/aggregator-on.svg)}
+.comp.m-multi .mi{background-image:url(icons/multibrain-on.svg)}
+.comp.m-agent .mi,.mt .mi{background-image:url(icons/agent-on.svg)}
+#s-ans[data-mode=agg] .ahead .mi{background-image:url(icons/aggregator-on.svg)}
+#s-ans[data-mode=multi] .ahead .mi{background-image:url(icons/multibrain-on.svg)}
+#s-ans[data-mode=agent] .ahead .mi{background-image:url(icons/agent-on.svg)}
+.ahead .mi{width:24px;height:24px}
+.lab .lt{margin-left:2px}
+/* 포털 메뉴 카드 */
+.mc .h{display:flex;align-items:center;gap:8px}
+.mc .h img{width:22px;height:22px;flex:none}
+.mc .b{position:relative;min-height:78px;padding-right:92px}
+.mc .ill{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:60px;height:60px;border-radius:16px;background:#ffffffd9;display:flex;align-items:center;justify-content:center}
+.mc .ill img{width:40px;height:40px}
+/* 모델 로고 */
+.models .lg{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center}
+.models .lg img{width:20px;height:20px;display:block}
+
+/* 과제 안내 문구: 진입 시 표시, 위로 밀면 치움 / 16초에 도움말 팝업으로 교체 */
+.tasktip{touch-action:none;cursor:grab;transition:opacity .3s,transform .25s}
+.tasktip b{font-size:17px;line-height:1.5;margin-bottom:0}
+.tasktip .grab{display:block;width:44px;height:4px;border-radius:2px;background:#d3d6e2;margin:12px auto 0}
+.tasktip .hint{display:block;margin-top:8px;text-align:center;font-size:11.5px;color:#8b8fa3}
+.tasktip.gone{opacity:0;transform:translateY(-130%);pointer-events:none}
 </style>
 </head>
 <body>
@@ -270,7 +294,6 @@ svg{display:block}
     <div class="sb"><span>9:41</span><i>▂▄▆ ◔ ▭</i></div>
     <div class="top"><button class="ib" id="homeMenu" aria-label="메뉴"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
     <div class="hero"><img src="after_assets/group-23.png" alt=""><p>AI 포털 젤리아이<br>당신의 미래와 함께합니다.</p></div>
-    <div class="routine" id="routine"><div class="plus">+</div><b>루틴 설정하기</b><span>자주 보고싶은 정보를<br>매일 요약해 드려요</span></div>
     <div class="comp dock" id="homeComp"><div class="lab"><span class="title-btn-area"><i class="mi"></i><b class="lt">통합 검색</b></span><button class="arrow-btn" aria-label="AI 포털 서비스 메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button></div>
       <div class="box" id="homeBox"><span class="plus">+</span><span style="flex:1;font-size:14px">질문을 입력해주세요</span><button class="mic"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm6-4a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1A8 8 0 0 0 20 11z"/></svg></button><span class="go voice"><span class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:10px"></i><i style="height:16px"></i><i style="height:7px"></i></span></span></div></div>
     <div class="homebar"></div>
@@ -398,10 +421,10 @@ svg{display:block}
   <div class="sheet" id="sheet">
     <div class="grab"></div>
     <h4>AI 포털 서비스<button id="sheetClose" aria-label="닫기">✕</button></h4>
-    <div class="mc s" data-m="search"><div class="h">통합 검색</div><div class="b">언제 어디서나 간편하게<br><b>실시간 통합 검색 기술을 경험하세요</b></div></div>
-    <div class="mc a" data-m="agg"><div class="h">AI 에그리게이터</div><div class="b"><b>GPT, Gemini, Claude, GROK</b> 등<br>최신 AI를 자유롭게<br>선택해 이용해보세요</div></div>
-    <div class="mc m" data-m="multi"><div class="h">AI 멀티브레인</div><div class="b"><b>최대 6개의 AI를 동시에 구동</b>시켜<br>신뢰도 높은<br>초강력 AI 오케스트레이션을 경험하세요</div></div>
-    <div class="mc g" data-m="agent"><div class="h">AI 에이전트</div><div class="b"><b>나의 경쟁력이 되는 AI 전문비서</b><br>8개 분야 90개의 AI 비서를<br>마음껏 활용하세요</div></div>
+    <div class="mc s" data-m="search"><div class="h"><img src="icons/search-off.svg" alt="">통합 검색</div><div class="b">언제 어디서나 간편하게<br><b>실시간 통합 검색 기술을 경험하세요</b><span class="ill"><img src="icons/search-on.svg" alt=""></span></div></div>
+    <div class="mc a" data-m="agg"><div class="h"><img src="icons/aggregator-off.svg" alt="">AI 에그리게이터</div><div class="b"><b>GPT, Gemini, Claude, GROK</b> 등<br>최신 AI를 자유롭게<br>선택해 이용해보세요<span class="ill"><img src="icons/aggregator-on.svg" alt=""></span></div></div>
+    <div class="mc m" data-m="multi"><div class="h"><img src="icons/multibrain-off.svg" alt="">AI 멀티브레인</div><div class="b"><b>최대 6개의 AI를 동시에 구동</b>시켜<br>신뢰도 높은<br>초강력 AI 오케스트레이션을 경험하세요<span class="ill"><img src="icons/multibrain-on.svg" alt=""></span></div></div>
+    <div class="mc g" data-m="agent"><div class="h"><img src="icons/agent-off.svg" alt="">AI 에이전트</div><div class="b"><b>나의 경쟁력이 되는 AI 전문비서</b><br>8개 분야 90개의 AI 비서를<br>마음껏 활용하세요<span class="ill"><img src="icons/agent-on.svg" alt=""></span></div></div>
   </div>
 
   <!-- 메인화면/1-1 메뉴 로그인-개인 : 사이드 메뉴 -->
@@ -448,6 +471,7 @@ svg{display:block}
     <button class="start" id="agentStart" disabled>시작하기</button>
   </div>
 
+  <div class="giveup tasktip show" id="taskTip" role="status"><b>모델을 선택하고<br>LLM과 대화를 시작해보세요</b><span class="grab"></span><span class="hint">위로 밀어서 닫기</span></div>
   <div class="giveup" id="giveUpBox" role="dialog" aria-label="모델 선택 도움말"><b>모델 선택을 못찾으셨나요?</b><div class="gu-row"><button id="giveUp" type="button">[포기할래요]</button><button id="foundIt" type="button" class="found">[찾았어요]</button></div></div>
   <div class="toast" id="toast"></div>
 </div>
@@ -496,7 +520,6 @@ function syncFilled(){
 // 홈
 $('homeBox').onclick=()=>show('s-search');
 $('homeMenu').onclick=openDrawer;
-$('routine').onclick=()=>toast('루틴 설정은 이번 프로토타입 범위 밖입니다');
 // 검색
 $('searchIn').oninput=syncFilled;
 $('searchIn').onkeydown=e=>{if(e.key==='Enter')ask($('searchIn').value)};
@@ -560,7 +583,7 @@ const MODELS={
  Claude:[['claude-opus-4.5','']],
  GROK:[['grok-code',''],['grok-4','']]
 };
-const LOGO={Gemini:'✦',GPT:'❂',Claude:'✳',GROK:'⊘'};
+const LOGO={Gemini:'<img src="icons/logo-gemini.svg" alt="">',GPT:'<img src="icons/logo-gpt.svg" alt="">',Claude:'<img src="icons/logo-claude.svg" alt="">',GROK:'<img src="icons/logo-grok.svg" alt="">'};
 const AGENT_CATS=['라이프스타일/일상','교육/학습','의료/헬스케어','법률/계약','경영지원','IT/개발','디자인/크리에이티브','마케팅/광고/콘텐츠'];
 const mode={type:'search',models:[]};
 function applyMode(){
@@ -571,6 +594,7 @@ function applyMode(){
     if(mode.type==='multi')c.classList.add('m-multi');
     c.querySelector('.lt').textContent=label;
   });
+  $('s-ans').setAttribute('data-mode',mode.type);
   $('ahTxt').textContent=mode.type==='agg'?`${mode.models[0]} 답변`:mode.type==='multi'?`${mode.models[0]} 외 답변`:'답변';
   // 에그리게이터/멀티브레인 채팅(2-1)에서는 좌상단이 메뉴(햄버거)
   const sb=$('searchBack');
@@ -744,7 +768,24 @@ $('dim').onclick=()=>{endChange();closeSheet()};
 show('s-home');
 
 // 진입 16초 후 도움말 팝업 노출 → 두 버튼 모두 인트로로 이동
-setTimeout(()=>document.getElementById('giveUpBox').classList.add('show'),16000);
+
+// 과제 안내 문구: 위로 밀면 치우고, 16초 뒤 도움말 팝업이 뜨면 교체된다
+(function(){
+  var el=document.getElementById('taskTip');if(!el)return;
+  var y0=null;
+  function dismiss(){el.style.transform='';el.classList.remove('show');el.classList.add('gone')}
+  el.addEventListener('pointerdown',function(e){y0=e.clientY;try{el.setPointerCapture(e.pointerId)}catch(x){}});
+  el.addEventListener('pointermove',function(e){
+    if(y0===null)return;var dy=e.clientY-y0;
+    if(dy<0)el.style.transform='translateY('+dy+'px)';
+    if(dy<-36){y0=null;dismiss()}
+  });
+  function end(){y0=null;if(!el.classList.contains('gone'))el.style.transform=''}
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+  window.__hideTaskTip=dismiss;
+})();
+
+setTimeout(()=>{if(window.__hideTaskTip)window.__hideTaskTip();document.getElementById('giveUpBox').classList.add('show')},16000);
 // 팝업 선택 결과 저장 후 인트로로 복귀 (인트로의 설문 버튼 활성화 조건)
 function leaveToIntro(result){
   try{localStorage.setItem('zeli_done_after','1');localStorage.setItem('zeli_result_after',result)}catch(e){}

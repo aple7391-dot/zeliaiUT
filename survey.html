@@ -66,6 +66,25 @@ h1.long{font-size:20px;margin-bottom:18px}
 .lb.pop.show{display:flex}
 .lb.pop img{width:auto;height:auto;max-width:min(300px,calc(100vw - 32px));max-height:calc(100vh - 110px);margin:0;border-radius:14px;background:#fff;cursor:pointer}
 .lb.pop .tip{display:none}
+
+/* 이미지 스켈레톤 + 로딩 */
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.imgbox{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#eceef5;width:100%}
+.imgbox .sk{position:absolute;inset:0;background:linear-gradient(90deg,#eceef5 25%,#f7f8fc 50%,#eceef5 75%);background-size:200% 100%;animation:sh 1.3s linear infinite}
+.imgbox .spin,.lb .lbspin{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid #c9cde0;border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+.imgbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s;border:0;border-radius:0;max-width:none;margin:0;cursor:default}
+.imgbox.loaded{cursor:zoom-in}
+.imgbox.loaded img{opacity:1;cursor:zoom-in}
+.imgbox.loaded .sk,.imgbox.loaded .spin{display:none}
+.imgbox.failed .sk,.imgbox.failed .spin{display:none}
+.imgbox .fail{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;font-size:13px;color:var(--sub);padding:12px;cursor:pointer}
+.imgbox.failed .fail{display:flex}
+.imgbox.shot{max-width:300px;margin:0 auto 16px}
+.pair .imgbox{border-radius:12px}
+.lb .lbspin{position:fixed;display:none;border-color:#ffffff55;border-top-color:#fff}
+.lb.loading .lbspin{display:block}
+.lb.loading img{visibility:hidden}
 </style>
 </head>
 <body>
@@ -74,7 +93,7 @@ h1.long{font-size:20px;margin-bottom:18px}
 <main id="main"></main>
 <div class="nav" id="nav"><div class="in"><button class="prev" id="prev">이전</button><button class="next" id="next" disabled>다음</button></div></div>
 
-<div class="lb" id="lb" role="dialog" aria-label="이미지 확대"><button class="x" id="lbX" aria-label="닫기">✕</button><img id="lbImg" alt=""><div class="tip" id="lbTip">탭하면 확대/축소 · 스크롤로 이동</div></div>
+<div class="lb" id="lb" role="dialog" aria-label="이미지 확대"><button class="x" id="lbX" aria-label="닫기">✕</button><div class="lbspin"></div><img id="lbImg" alt=""><div class="tip" id="lbTip">탭하면 확대/축소 · 스크롤로 이동</div></div>
 
 <script src="survey/config.js"></script>
 <script>
@@ -124,6 +143,13 @@ h1.long{font-size:20px;margin-bottom:18px}
     for(var i=1;i<=7;i++)h+='<button type="button" data-k="'+key+'" data-v="'+i+'" role="radio" aria-checked="'+(S.a[key]===i)+'" class="'+(S.a[key]===i?'on':'')+'">'+i+'</button>';
     return h+'</div><div class="ends"><span>1 '+esc(low)+'</span><span>7 '+esc(high)+'</span></div>';
   }
+  function imgBox(kind,v,extra){
+    var sz=(C.SIZES&&C.SIZES[kind]&&C.SIZES[kind][v])||[390,844];
+    return '<div class="imgbox'+(extra?' '+extra:'')+'" data-zoom="1" style="aspect-ratio:'+sz[0]+' / '+sz[1]+'">'+
+      '<div class="sk"></div><div class="spin" role="status" aria-label="이미지 불러오는 중"></div>'+
+      '<img src="'+C.IMAGES[kind][v]+'" alt="'+esc(C.ALT[kind][v])+'" decoding="async">'+
+      '<div class="fail">이미지를 불러오지 못했어요<br>탭하면 다시 시도합니다</div></div>';
+  }
   function text(key,rows){return '<textarea data-t="'+key+'" rows="'+(rows||4)+'" maxlength="1000">'+esc(S.a[key]||'')+'</textarea>'}
   function block(v,inner){return '<section class="card v-'+v+'"><span class="tag">'+esc(L[v])+'</span>'+inner+'</section>'}
 
@@ -142,14 +168,14 @@ h1.long{font-size:20px;margin-bottom:18px}
     }else if(step==='q3a'||step==='q3b'){
       var v=S.o3[step==='q3a'?0:1];
       h+='<h1>첫인상을 알려주세요</h1><p class="sub">'+(step==='q3a'?'1':'2')+' / 2</p>';
-      h+='<img class="shot" data-zoom="1" src="'+C.IMAGES.start[v]+'" alt="'+esc(C.ALT.start[v])+'">';
+      h+=imgBox('start',v,'shot');
       h+='<p class="hint">이미지를 탭하면 크게 볼 수 있어요</p>';
       h+='<section class="card"><p class="q">'+esc(T.firstImpression)+'</p>'+text('imp_'+v)+'</section>';
     }else if(step==='q4'){
       var order=S.l4==='before_left'?['before','after']:['after','before'];
       h+='<h1>두 화면을 비교해 주세요</h1><p class="sub">이미지를 탭하면 크게 볼 수 있어요.</p><div class="pair">';
       order.forEach(function(v){
-        h+='<figure><figcaption>'+esc(L[v])+'</figcaption><img data-zoom="1" src="'+C.IMAGES.chat[v]+'" alt="'+esc(C.ALT.chat[v])+'"></figure>';
+        h+='<figure><figcaption>'+esc(L[v])+'</figcaption>'+imgBox('chat',v)+'</figure>';
       });
       h+='</div><section class="card"><p class="q">'+esc(T.compareChoice)+'</p><div class="choices">';
       order.concat(['same']).forEach(function(v){
@@ -178,11 +204,28 @@ h1.long{font-size:20px;margin-bottom:18px}
     $('barFill').style.width=((S.step+1)/STEPS.length*100)+'%';
     $('cnt').textContent=(S.step+1)+' / '+STEPS.length;
     main.innerHTML=(S.err?'<div class="err">'+esc(S.err)+'</div>':'')+view(step);
+    bindImages();
     $('prev').style.visibility=S.step===0?'hidden':'visible';
     $('next').textContent=S.step===STEPS.length-1?(S.sending?'제출 중…':'제출하기'):'다음';
     updateNext();
     main.scrollTop=0;window.scrollTo(0,0);
   }
+  function bindImages(){
+    document.querySelectorAll('.imgbox img').forEach(function(img){
+      var box=img.parentNode;
+      function ok(){box.classList.remove('failed');box.classList.add('loaded')}
+      function bad(){box.classList.add('failed')}
+      img.onload=ok;img.onerror=bad;
+      if(img.complete&&img.naturalWidth>0)ok();else if(img.complete)bad();
+      box.querySelector('.fail').onclick=function(e){
+        e.stopPropagation();box.classList.remove('failed');
+        var src=img.getAttribute('src');img.removeAttribute('src');img.setAttribute('src',src+(src.indexOf('?')<0?'?r=':'&r=')+Date.now());
+      };
+    });
+  }
+  // 첫 화면부터 모든 이미지를 미리 받아 둠 (뒤에서 바로 뜨도록)
+  ['start','chat'].forEach(function(k){['before','after'].forEach(function(v){var i=new Image();i.src=C.IMAGES[k][v]})});
+
   function updateNext(){$('next').disabled=!valid(STEPS[S.step])||!!S.sending}
 
   /* ---------- 입력 ---------- */
@@ -199,10 +242,22 @@ h1.long{font-size:20px;margin-bottom:18px}
       updateNext();return;
     }
     var gh=e.target.closest&&e.target.closest('[data-img]');
-    if(gh){$('lbImg').src=gh.getAttribute('data-img');$('lbImg').alt=gh.getAttribute('data-alt')||'';$('lb').classList.remove('z');$('lb').classList.add('pop','show');return}
-    var im=e.target.closest&&e.target.closest('[data-zoom]');
-    if(im){$('lbImg').src=im.src;$('lbImg').alt=im.alt;$('lb').classList.remove('z','pop');$('lb').classList.add('show');return}
+    if(gh){openLb(gh.getAttribute('data-img'),gh.getAttribute('data-alt')||'',true);return}
+    var im=e.target.closest&&e.target.closest('.imgbox');
+    if(im){
+      if(!im.classList.contains('loaded'))return;   // 로딩 중에는 눌러도 아무 일도 없음
+      var ii=im.querySelector('img');openLb(ii.currentSrc||ii.src,ii.alt,false);return;
+    }
   });
+  function openLb(src,alt,pop){
+    var lb=$('lb'),img=$('lbImg');
+    lb.classList.remove('z','pop');if(pop)lb.classList.add('pop');
+    lb.classList.add('show','loading');
+    img.onload=function(){lb.classList.remove('loading')};
+    img.onerror=function(){lb.classList.remove('loading')};
+    img.alt=alt;img.src=src;
+    if(img.complete&&img.naturalWidth>0)lb.classList.remove('loading');
+  }
   $('main').addEventListener('input',function(e){
     var k=e.target.getAttribute&&e.target.getAttribute('data-t');
     if(!k)return;S.a[k]=e.target.value;save();updateNext();
