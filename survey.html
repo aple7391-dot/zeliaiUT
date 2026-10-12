@@ -55,6 +55,17 @@ textarea:focus{border-color:var(--brand)}
 .lb .x{position:fixed;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#000;font-size:22px;z-index:51;cursor:pointer}
 .lb .tip{position:fixed;left:0;right:0;bottom:16px;text-align:center;color:#fff;font-size:13px;z-index:51;pointer-events:none}
 @media(max-width:380px){.q{font-size:16px}.scale button{font-size:15px}}
+.card.v-before .tag{background:#eceef3;color:#5d6178}
+.card.v-before .scale button.on{background:#6b7080;border-color:#6b7080;color:#fff}
+.card.v-before textarea:focus{border-color:#6b7080}
+.ghost{display:flex;width:fit-content;align-items:center;gap:6px;min-height:44px;padding:0 14px;margin:0 0 14px;border:1.5px solid var(--line);background:transparent;border-radius:12px;color:var(--sub);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer}
+.ghost:hover,.ghost:active{border-color:var(--brand);color:var(--brand)}
+.card.v-before .ghost:hover,.card.v-before .ghost:active{border-color:#6b7080;color:#40445a}
+h1.long{font-size:20px;margin-bottom:18px}
+.lb.pop{background:#000a;overflow:hidden;display:none;align-items:center;justify-content:center}
+.lb.pop.show{display:flex}
+.lb.pop img{width:auto;height:auto;max-width:min(300px,calc(100vw - 32px));max-height:calc(100vh - 110px);margin:0;border-radius:14px;background:#fff;cursor:pointer}
+.lb.pop .tip{display:none}
 </style>
 </head>
 <body>
@@ -63,7 +74,7 @@ textarea:focus{border-color:var(--brand)}
 <main id="main"></main>
 <div class="nav" id="nav"><div class="in"><button class="prev" id="prev">이전</button><button class="next" id="next" disabled>다음</button></div></div>
 
-<div class="lb" id="lb" role="dialog" aria-label="이미지 확대"><button class="x" id="lbX" aria-label="닫기">✕</button><img id="lbImg" alt=""><div class="tip">탭하면 확대/축소 · 스크롤로 이동</div></div>
+<div class="lb" id="lb" role="dialog" aria-label="이미지 확대"><button class="x" id="lbX" aria-label="닫기">✕</button><img id="lbImg" alt=""><div class="tip" id="lbTip">탭하면 확대/축소 · 스크롤로 이동</div></div>
 
 <script src="survey/config.js"></script>
 <script>
@@ -112,7 +123,7 @@ textarea:focus{border-color:var(--brand)}
     return h+'</div><div class="ends"><span>1 '+esc(low)+'</span><span>7 '+esc(high)+'</span></div>';
   }
   function text(key,rows){return '<textarea data-t="'+key+'" rows="'+(rows||4)+'" maxlength="1000">'+esc(S.a[key]||'')+'</textarea>'}
-  function block(v,inner){return '<section class="card"><span class="tag">'+esc(L[v])+'</span>'+inner+'</section>'}
+  function block(v,inner){return '<section class="card v-'+v+'"><span class="tag">'+esc(L[v])+'</span>'+inner+'</section>'}
 
   function view(step){
     var h='';
@@ -122,9 +133,9 @@ textarea:focus{border-color:var(--brand)}
         h+=block(v,'<p class="q">'+esc(T.seq)+'</p>'+scale('seq_'+v,T.seqLow,T.seqHigh));
       });
     }else if(step==='q2'){
-      h+='<h1>경험을 자세히 들려주세요</h1><p class="sub">정답은 없어요. 느낀 그대로 적어 주세요.</p>';
+      h+='<h1 class="long">'+esc(T.experienceTitle)+'</h1>';
       ['before','after'].forEach(function(v){
-        h+=block(v,'<p class="q">'+esc(T.unexpected)+'</p>'+text('open_'+v));
+        h+=block(v,'<button type="button" class="ghost" data-img="'+C.IMAGES.chat[v]+'" data-alt="'+esc(C.ALT.chat[v])+'">'+esc(T.reviewImage)+'</button>'+text('open_'+v));
       });
     }else if(step==='q3a'||step==='q3b'){
       var v=S.o3[step==='q3a'?0:1];
@@ -147,7 +158,7 @@ textarea:focus{border-color:var(--brand)}
     }else if(step==='q5'){
       h+='<h1>마지막 질문이에요</h1><p class="sub">버전별로 각각 답해 주세요.</p>';
       ['before','after'].forEach(function(v){
-        h+=block(v,'<p class="q">'+esc(T.intent)+'</p>'+scale('intent_'+v,T.intentLow,T.intentHigh)+
+        h+=block(v,'<p class="q">'+esc(T.intent.replace('{label}',L[v]))+'</p>'+scale('intent_'+v,T.intentLow,T.intentHigh)+
           '<p class="q" style="margin-top:20px">'+esc(T.intentReason)+'</p>'+text('intent_open_'+v));
       });
     }
@@ -185,18 +196,20 @@ textarea:focus{border-color:var(--brand)}
       }
       updateNext();return;
     }
+    var gh=e.target.closest&&e.target.closest('[data-img]');
+    if(gh){$('lbImg').src=gh.getAttribute('data-img');$('lbImg').alt=gh.getAttribute('data-alt')||'';$('lb').classList.remove('z');$('lb').classList.add('pop','show');return}
     var im=e.target.closest&&e.target.closest('[data-zoom]');
-    if(im){$('lbImg').src=im.src;$('lbImg').alt=im.alt;$('lb').classList.remove('z');$('lb').classList.add('show');return}
+    if(im){$('lbImg').src=im.src;$('lbImg').alt=im.alt;$('lb').classList.remove('z','pop');$('lb').classList.add('show');return}
   });
   $('main').addEventListener('input',function(e){
     var k=e.target.getAttribute&&e.target.getAttribute('data-t');
     if(!k)return;S.a[k]=e.target.value;save();updateNext();
   });
   $('lb').addEventListener('click',function(e){
-    if(e.target===$('lbX')){$('lb').classList.remove('show','z');return}
+    if(e.target===$('lbX')||$('lb').classList.contains('pop')){$('lb').classList.remove('show','z','pop');return}
     $('lb').classList.toggle('z');
   });
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')$('lb').classList.remove('show','z')});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')$('lb').classList.remove('show','z','pop')});
 
   $('prev').onclick=function(){if(S.step>0){S.step--;S.err='';save();render()}};
   $('next').onclick=function(){

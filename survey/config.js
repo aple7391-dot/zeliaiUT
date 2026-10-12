@@ -30,15 +30,17 @@
     },
 
     TEXT: {
-      seq: '이 과제(모델을 선택하고 대화 시작하기)는 얼마나 쉬웠나요?',
+      seq: '모델 선택하고 대화 시작하기는 난이도가 어땠나요?',
       seqLow: '매우 어려움',
       seqHigh: '매우 쉬움',
-      unexpected: '찾는 과정에서 예상과 달랐던 점이 있었나요? 느꼈던 감정도 편하게 적어주세요.',
+      experienceTitle: '찾는 과정에서 예상과 달랐던 점이 있었나요? 느꼈던 감정도 편하게 적어주세요.',
+      reviewImage: '이미지 다시보기',
       firstImpression: '이 화면을 처음 봤을 때 어떤 서비스라고 생각했어요?',
       compareChoice: '어느 쪽이 대화를 시작하기 더 쉬웠나요?',
       compareSame: '차이 없음',
       compareReason: '그렇게 생각한 이유는?',
-      intent: '이 서비스를 실제로 다시 사용할 의향이 있나요?',
+      // {label} 자리에 LABELS(개선 전/개선 후)가 들어갑니다
+      intent: '{label}의 서비스를 다시 사용할 의향이 있나요?',
       intentLow: '전혀 없음',
       intentHigh: '매우 있음',
       intentReason: '어떤 상황에서 다시 쓰고 싶으신가요? 쓰고 싶지 않다면 이유는?'
