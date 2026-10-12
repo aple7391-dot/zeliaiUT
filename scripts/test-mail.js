@@ -19,8 +19,8 @@ const built = buildRows({
     intent_open_before: '쓰고 싶지 않아요', intent_open_after: '검색할 때 쓰고 싶어요'
   }
 });
-sendMail(process.env, built, { test: true }).then((s) => {
-  console.log('mail_status =', s);
-  if (s === 'skipped') console.log('→ .env.local 에 NAVER_SMTP_USER / NAVER_SMTP_PASS 를 채우고 npm install 후 다시 실행하세요.');
-  process.exit(s === 'sent' || s === 'skipped' ? 0 : 1);
+sendMail(process.env, built, { test: true }).then((r) => {
+  console.log('mail_status =', r.status, r.detail ? '(' + r.detail + ')' : '');
+  if (r.status === 'skipped') console.log('→ .env.local 에 NAVER_SMTP_USER / NAVER_SMTP_PASS 를 채우고 npm install 후 다시 실행하세요.');
+  process.exit(r.status === 'sent' || r.status === 'skipped' ? 0 : 1);
 });
