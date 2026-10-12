@@ -28,6 +28,10 @@ function readBody(req) {
 
 http.createServer(async (req, res) => {
   const url = decodeURIComponent((req.url || '/').split('?')[0]);
+  if (url === '/api/config') {
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    return res.end(JSON.stringify({ mp_token: (process.env.MIXPANEL_TOKEN || '').trim() || null, mp_host: process.env.MIXPANEL_API_HOST || 'api.mixpanel.com' }));
+  }
   if (url === '/api/events') {
     if (req.method !== 'POST') { res.writeHead(405); return res.end(); }
     const out = await handleEvents(await readBody(req), process.env);

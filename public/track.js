@@ -2,6 +2,7 @@
  * UT 행동 기록 (개선 전 / 개선 후 화면 공용)
  *  - 무엇을 눌렀는지(click), 어느 화면/오버레이에 머물렀는지(view), 언제 포기/성공을 눌렀는지(result)
  *  - 입력창에 적은 글자는 수집하지 않습니다. 버튼 문구/요소 이름/좌표만 기록합니다.
+ *  - 전송: 믹스패널(환경변수 MIXPANEL_TOKEN 이 있을 때) → 없으면 /api/events(Supabase)
  *  - 사용법: <script src="track.js" data-variant="before"></script>
  */
 (function () {
@@ -51,13 +52,47 @@
     buf.push(e);
     if (buf.length >= 25) flush();
   }
+  /* ----- 전송: Mixpanel(우선) / 토큰이 없으면 자체 서버(/api/events) ----- */
+  var CONFIG_API = (me && me.getAttribute('data-config')) || 'api/config';
+  var CFG_KEY = 'zeli_track_cfg';
+  var cfg = null;
+  try { cfg = JSON.parse(ls(CFG_KEY) || 'null'); } catch (e) { cfg = null; }
+  try {
+    fetch(CONFIG_API, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (c) {
+      cfg = { mp_token: c.mp_token || null, mp_host: c.mp_host || 'api.mixpanel.com' };
+      ls(CFG_KEY, JSON.stringify(cfg));
+      flush();
+    }).catch(function () { if (!cfg) cfg = { mp_token: null }; });
+  } catch (e) { cfg = { mp_token: null }; }
+
+  var EVENT_NAME = { start: 'UT Start', view: 'UT View', click: 'UT Click', result: 'UT Result', hidden: 'UT Hidden' };
+  function b64(str) { return btoa(unescape(encodeURIComponent(str))); }
+  function post(url, body, type) {
+    try {
+      if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: type }))) return;
+    } catch (e) {}
+    try { fetch(url, { method: 'POST', headers: { 'Content-Type': type }, body: body, keepalive: true, mode: 'no-cors' }); } catch (e) {}
+  }
   function flush(final) {
     if (!buf.length) return;
-    var body = JSON.stringify({ participant_id: pid, session_id: sid, variant: VARIANT, events: buf.splice(0, buf.length) });
-    try {
-      if (navigator.sendBeacon && navigator.sendBeacon(API, new Blob([body], { type: 'application/json' }))) return;
-    } catch (e) {}
-    try { fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true }); } catch (e) {}
+    if (!cfg) { if (!final) return; cfg = { mp_token: null }; } // 설정을 아직 못 받았고 종료 중이면 폴백
+    var evs = buf.splice(0, buf.length);
+    if (cfg.mp_token) {
+      var data = evs.map(function (e) {
+        var p = {
+          token: cfg.mp_token, distinct_id: pid, time: t0 + (e.t || 0), $insert_id: sid + '-' + e.seq,
+          variant: VARIANT, session_id: sid, t_ms: e.t, screen: e.screen, overlay: e.overlay, tab: e.tab,
+          target: e.target, label: e.label, x: e.x, y: e.y, result: e.result, elapsed_ms: e.elapsed_ms,
+          viewport_w: e.w, viewport_h: e.h
+        };
+        for (var k in p) if (p[k] === undefined || p[k] === null) delete p[k];
+        return { event: EVENT_NAME[e.type] || ('UT ' + e.type), properties: p };
+      });
+      post('https://' + (cfg.mp_host || 'api.mixpanel.com') + '/track?ip=0',
+        'data=' + encodeURIComponent(b64(JSON.stringify(data))), 'application/x-www-form-urlencoded');
+    } else {
+      post(API, JSON.stringify({ participant_id: pid, session_id: sid, variant: VARIANT, events: evs }), 'application/json');
+    }
   }
 
   /* ----- 클릭: 어떤 요소를 눌렀는지 ----- */
