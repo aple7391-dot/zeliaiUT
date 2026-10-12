@@ -126,7 +126,7 @@ h1.long{font-size:20px;margin-bottom:18px}
   if(!S||!S.pid){
     var shared=null;try{shared=localStorage.getItem('zeli_pid')}catch(e){}
     var pidNew=shared||uuid();try{localStorage.setItem('zeli_pid',pidNew)}catch(e){}
-    S={pid:pidNew,step:0,a:{},o3:shuffle2(),l4:Math.random()<.5?'before_left':'after_left',done:false};
+    S={pid:pidNew,step:0,a:{},o3:shuffle2(),done:false};
     save();
   }
   function stored(k){try{return localStorage.getItem(k)}catch(e){return null}}
@@ -139,7 +139,7 @@ h1.long{font-size:20px;margin-bottom:18px}
       case 'q2':return filled('open_before')&&filled('open_after');
       case 'q3a':return filled('imp_'+S.o3[0]);
       case 'q3b':return filled('imp_'+S.o3[1]);
-      case 'q4':return filled('compare_choice')&&filled('compare_reason');
+      case 'q4':return filled('past_chatbot_use')&&filled('past_model_switch');
       case 'q5':return filled('intent_before')&&filled('intent_after')&&filled('intent_open_before')&&filled('intent_open_after');
     }
     return false;
@@ -181,17 +181,9 @@ h1.long{font-size:20px;margin-bottom:18px}
       h+='<p class="hint">이미지를 탭하면 크게 볼 수 있어요</p>';
       h+='<section class="card"><p class="q">'+esc(T.firstImpression)+'</p>'+text('imp_'+v)+'</section>';
     }else if(step==='q4'){
-      var order=S.l4==='before_left'?['before','after']:['after','before'];
-      h+='<h1>두 화면을 비교해 주세요</h1><p class="sub">이미지를 탭하면 크게 볼 수 있어요.</p><div class="pair">';
-      order.forEach(function(v){
-        h+='<figure><figcaption><span class="v-'+v+'">'+esc(L[v])+'</span></figcaption>'+imgBox('chat',v)+'</figure>';
-      });
-      h+='</div><section class="card"><p class="q">'+esc(T.compareChoice)+'</p><div class="choices">';
-      order.concat(['same']).forEach(function(v){
-        var lab=v==='same'?T.compareSame:L[v];
-        h+='<button type="button" data-k="compare_choice" data-v="'+v+'" class="v-'+v+(S.a.compare_choice===v?' on':'')+'">'+esc(lab)+'</button>';
-      });
-      h+='</div></section><section class="card"><p class="q">'+esc(T.compareReason)+'</p>'+text('compare_reason')+'</section>';
+      h+='<h1>평소 AI 챗봇 이용에 대해 알려주세요</h1>';
+      h+='<section class="card"><p class="q">'+esc(T.pastChatbotUse)+'</p>'+text('past_chatbot_use')+'</section>';
+      h+='<section class="card"><p class="q">'+esc(T.pastModelSwitch)+'</p>'+text('past_model_switch')+'</section>';
     }else if(step==='q5'){
       h+='<h1>마지막 질문이에요</h1><p class="sub">버전별로 각각 답해 주세요.</p>';
       ['before','after'].forEach(function(v){
@@ -293,7 +285,6 @@ h1.long{font-size:20px;margin-bottom:18px}
       // 기존 UT 화면이 체험 순서(시각)를 기록하지 않아 알 수 없음 → null
       first_version:null,
       first_impression_order:S.o3,
-      compare_layout:S.l4,
       task_result:{},
       answers:S.a
     };

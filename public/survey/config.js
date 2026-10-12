@@ -41,9 +41,9 @@
       experienceTitle: '찾는 과정에서 예상과 달랐던 점이 있었나요? 느꼈던 감정도 편하게 적어주세요.',
       reviewImage: '이미지 다시보기',
       firstImpression: '이 화면을 처음 봤을 때 어떤 서비스라고 생각했어요?',
-      compareChoice: '어느 쪽이 대화를 시작하기 더 쉬웠나요?',
-      compareSame: '차이 없음',
-      compareReason: '그렇게 생각한 이유는?',
+      // 과거 행동 질문 (question_id: past_chatbot_use / past_model_switch)
+      pastChatbotUse: '최근 한 달 안에 AI 챗봇을 가장 마지막으로 쓴 때는 언제였고, 무슨 일 때문이었나요?',
+      pastModelSwitch: '그때 AI 모델을 직접 바꿔본 적이 있나요? 있다면 왜, 어떻게 바꿨는지 알려주세요. 없다면 \'없음\'이라고 적어주세요.',
       // {label} 자리에 LABELS(A버전/B버전)가 들어갑니다
       intent: '{label}의 서비스를 다시 사용할 의향이 있나요?',
       intentLow: '전혀 없음',
