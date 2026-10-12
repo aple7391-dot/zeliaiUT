@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>젤리아이 UX 테스트</title>
-<meta name="description" content="젤리아이 개선 전/후 사용성 테스트 시작 화면">
+<meta name="description" content="젤리아이 A/B 버전 사용성 테스트 시작 화면">
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--ink:#14142b;--sub:#5d6178;--line:#e4e6ef;--brand:#4f46e5;--brand-soft:#eef0ff}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -59,12 +59,12 @@ h1 em{font-style:normal;color:var(--brand);white-space:nowrap}
   <nav class="opts">
     <a class="opt before" id="before" href="before.html">
       <span class="ico">📱</span>
-      <span class="txt"><strong>젤리아이 개선 전</strong><span>기존 화면으로 시작</span></span>
+      <span class="txt"><strong>젤리아이 A버전</strong><span>A버전 화면으로 시작</span></span>
       <span class="go">→</span>
     </a>
     <a class="opt after" id="after" href="after.html">
       <span class="ico">✨</span>
-      <span class="txt"><strong>젤리아이 개선 후</strong><span>개선된 화면으로 시작</span></span>
+      <span class="txt"><strong>젤리아이 B버전</strong><span>B버전 화면으로 시작</span></span>
       <span class="go">→</span>
     </a>
   </nav>
@@ -72,11 +72,11 @@ h1 em{font-style:normal;color:var(--brand);white-space:nowrap}
   <section class="survey">
     <h2>마지막으로 의견 작성 부탁드립니다</h2>
     <a id="survey" href="survey.html" aria-disabled="true">10초만에 설문 작성 →</a>
-    <p class="hint" id="surveyHint">두 화면 모두 체험 후 돌아오면 작성할 수 있어요</p>
+    <p class="hint" id="surveyHint">A·B 두 버전 모두 체험 후 돌아오면 작성할 수 있어요</p>
   </section>
 </main>
 <script>
-// 개선 전/후를 모두 눌러본 뒤에만 설문 버튼 활성화
+// A/B 버전을 모두 눌러본 뒤에만 설문 버튼 활성화
 (function(){
   var K={before:'zeli_done_before',after:'zeli_done_after'};
   function get(k){try{return localStorage.getItem(k)==='1'}catch(e){return false}}

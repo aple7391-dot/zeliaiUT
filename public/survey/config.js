@@ -8,7 +8,7 @@
   if (typeof module === 'object' && module.exports) module.exports = cfg;
   else root.SURVEY_CONFIG = cfg;
 })(typeof self !== 'undefined' ? self : this, function () {
-  var LABELS = { before: '개선 전', after: '개선 후' };
+  var LABELS = { before: 'A버전', after: 'B버전' };
 
   return {
     LABELS: LABELS,
@@ -44,7 +44,7 @@
       compareChoice: '어느 쪽이 대화를 시작하기 더 쉬웠나요?',
       compareSame: '차이 없음',
       compareReason: '그렇게 생각한 이유는?',
-      // {label} 자리에 LABELS(개선 전/개선 후)가 들어갑니다
+      // {label} 자리에 LABELS(A버전/B버전)가 들어갑니다
       intent: '{label}의 서비스를 다시 사용할 의향이 있나요?',
       intentLow: '전혀 없음',
       intentHigh: '매우 있음',
