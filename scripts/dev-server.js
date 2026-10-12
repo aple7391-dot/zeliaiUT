@@ -1,12 +1,13 @@
-// 로컬 실행/자체 서버용: 정적 파일 + POST /api/submit
+// 로컬 실행용 서버: 정적 파일 + POST /api/submit
 // 실행: npm start  →  http://localhost:3000
-require('./lib/env.js').loadEnv();
+// (루트에 server.js 가 있으면 Vercel 이 서버 진입점으로 착각해 / 가 404가 되므로 scripts/ 아래에 둔다)
+require('../lib/env.js').loadEnv();
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { handleSubmit } = require('./lib/submit.js');
+const { handleSubmit } = require('../lib/submit.js');
 
-const ROOT = __dirname;
+const ROOT = path.join(__dirname, '..');
 const PORT = Number(process.env.PORT || 3000);
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
