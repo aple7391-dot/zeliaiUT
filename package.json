@@ -5,7 +5,9 @@
   "description": "젤리아이 UT 프로토타입 + 설문",
   "scripts": {
     "start": "node server.js",
-    "test-mail": "node scripts/test-mail.js"
+    "test-mail": "node scripts/test-mail.js",
+    "vercel-build": "node scripts/build-static.js",
+    "build": "node scripts/build-static.js"
   },
   "dependencies": {
     "nodemailer": "^6.9.16"
