@@ -4,11 +4,3 @@ node_modules/
 data/
 .DS_Store
 public:assets/
-# build-static 생성물 (public/assets 는 소스라서 제외하지 않음)
-public/index.html
-public/before.html
-public/after.html
-public/survey.html
-public/survey/
-public/after_assets/
-public/ad_banner.png
