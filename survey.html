@@ -171,7 +171,7 @@ h1.long{font-size:20px;margin-bottom:18px}
   function view(step){
     var h='';
     if(step==='q1'){
-      h+='<h1>과제를 마친 소감을 알려주세요</h1><p class="sub">버전별로 각각 답해 주세요.</p>';
+      h+='<h1>미션 화면을 찾으셨는지 확인할게요</h1><p class="sub">이미지 다시보기를 클릭하면 미션화면이 나와요</p>';
       ['before','after'].forEach(function(v){
         h+=block(v,'<button type="button" class="ghost" data-img="'+C.IMAGES.chat[v]+'" data-alt="'+esc(C.ALT.chat[v])+'">'+esc(T.reviewImage)+'</button><p class="q">'+esc(T.seq)+'</p>'+scale('seq_'+v,T.seqLow,T.seqHigh));
       });
