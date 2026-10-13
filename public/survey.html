@@ -319,11 +319,12 @@ h1.long{font-size:20px;margin-bottom:18px}
       .then(function(o){
         S.sending=false;
         if(o.ok&&o.j&&o.j.ok){S.done=true;S.err='';save();render()}
-        else throw new Error((o.j&&o.j.error)||'save_failed');
+        else{var er=new Error((o.j&&o.j.error)||'save_failed');er.reason=(o.j&&o.j.reason)||'';throw er}
       })
-      .catch(function(){
+      .catch(function(e){
         S.sending=false;
-        S.err='제출하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요. (입력한 내용은 저장되어 있어요)';
+        var code=e&&e.message?String(e.message).slice(0,60):'network';
+        S.err='제출하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요. (입력한 내용은 저장되어 있어요) [오류: '+code+(e&&e.reason?' / '+String(e.reason).slice(0,120):'')+']';
         save();render();
       });
   }
