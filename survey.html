@@ -150,7 +150,7 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     }else if(step==='compare'){
       var opts=[T.cmpOne,T.cmpTwo];
       h+='<h1>두 방식을 비교해 주세요</h1>';
-      h+='<div class="imgrow"><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""></div><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""></div></div>';
+      h+='<div class="imgrow"><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">보관함</span></div><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">모으기</span></div></div>';
       h+='<section class="card"><p class="q">'+esc(T.comparePrefer)+'</p>'+choiceBtns('compare_prefer',opts,true)+'</section>';
       h+='<section class="card"><p class="q">'+esc(T.compareFamiliar)+'</p>'+choiceBtns('compare_familiar',opts,true)+'</section>';
     }else if(step==='final'){
