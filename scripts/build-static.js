@@ -25,4 +25,5 @@ function copyDir(rel) {
 ['index.html', 'survey.html'].forEach((f) => copyFile(f));
 copyFile(path.join('survey', 'config.js'));
 copyFile(path.join('guide', 'its-guide.js'));
+copyDir('img'); // 설문에 넣은 스크린샷
 console.log('static files copied to public/');

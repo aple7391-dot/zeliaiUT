@@ -12,7 +12,7 @@
 html{-webkit-text-size-adjust:100%}
 body{background:#fff;color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;font-size:15px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column;align-items:center;letter-spacing:-.01em}
 .wrap{width:100%;max-width:720px;padding-left:24px;padding-right:24px}
-h1{font-size:clamp(18px,4vw,20px);line-height:1.35;font-weight:800;letter-spacing:-.035em;word-break:keep-all}
+h1,.qtitle{font-size:clamp(18px,4vw,20px);line-height:1.35;font-weight:800;letter-spacing:-.035em;word-break:keep-all}
 h2{font-size:17px;line-height:1.5;font-weight:700;letter-spacing:-.02em;word-break:keep-all}
 .sub{color:var(--sub);word-break:keep-all}
 ul.dots{list-style:none;display:flex;flex-direction:column;gap:14px}
@@ -30,11 +30,12 @@ main{flex:1;padding-top:36px;padding-bottom:140px}
 main h1{margin-bottom:10px}
 main>.sub{margin-bottom:8px}
 .card{margin-top:44px}
+.card:first-of-type{margin-top:0}
 .tag{display:block;font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
 .q{font-size:16px;font-weight:600;line-height:1.55;word-break:keep-all;margin-bottom:16px}
 .fq{position:relative;padding-left:20px;font-size:14px;font-weight:600;margin-bottom:10px}
 .fq::before{content:"•";position:absolute;left:2px}
-.fgap{height:22px}
+.fgap{height:20px}
 .scale{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .scale button{min-height:52px;border:0;background:var(--mist);border-radius:12px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit}
 .scale button.on{background:var(--navy);color:#fff}
@@ -46,11 +47,6 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 .choices{display:flex;flex-direction:column;gap:10px}
 .choices button{min-height:56px;border:0;background:var(--mist);border-radius:14px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;text-align:left;padding:0 20px}
 .choices button.on{background:var(--navy);color:#fff}
-.task{display:flex;flex-direction:column;gap:14px}
-.task p{font-size:15px;font-weight:600;word-break:keep-all}
-.task .tg{display:flex;gap:10px}
-.task .tg button{flex:1;height:52px;border:0;background:var(--mist);border-radius:14px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit}
-.task .tg button.on{background:var(--navy);color:#fff}
 .nav{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:14px 0 calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:center}
 .nav .in{display:flex;align-items:center;gap:12px}
 .nav .prev{flex:0 0 auto;height:56px;padding:0 8px;background:none;border:0;color:var(--sub);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
@@ -58,6 +54,15 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 .center{padding-top:72px}
 .center h1{margin-bottom:14px}
 .err{background:var(--mist);color:#b42318;border-radius:12px;padding:14px 16px;font-size:14px;margin-bottom:20px}
+/* 질문에 곁들이는 스크린샷: 꽉 찬 폭 1장, 혹은 나란히 2장 */
+.qimg{display:block;width:100%;height:auto;border-radius:16px;margin:16px 0 22px;border:1px solid var(--off)}
+.imgrow{display:flex;gap:10px;margin:16px 0 22px}
+.imgrow img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--off)}
+.imgrow.tight{gap:0}
+.imgrow .imgcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.imgrow.tight .imgcol:first-child img{border-top-right-radius:0;border-bottom-right-radius:0;border-right:none}
+.imgrow.tight .imgcol:last-child img{border-top-left-radius:0;border-bottom-left-radius:0}
+.imgcap{font-size:13px;font-weight:700;color:var(--sub)}
 @media(min-width:900px){main{padding-top:56px}}
 </style>
 </head>
@@ -70,9 +75,10 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 <script src="survey/config.js"></script>
 <script>
 (function(){
-  var C=window.SURVEY_CONFIG, L=C.LABELS, T=C.TEXT, M=['1','2'];
+  var C=window.SURVEY_CONFIG, L=C.LABELS, T=C.TEXT, M=['1','2'], V={'1':'c','2':'b'};
   var $=function(id){return document.getElementById(id)};
-  var ALL=['prior_use','task_result','seq','feedback','compare','final'];
+  // 1: prior_use(사전 경험) → 2: 보관함(c)만 → 3: 모으기(b)만 → 4: 비교 → 5: 마지막
+  var ALL=['prior_use','1','2','compare','final'];
 
   /* ---------- 상태 (localStorage 복구) ---------- */
   function uuid(){
@@ -102,9 +108,7 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
   function valid(step){
     switch(step){
       case 'prior_use':return filled('prior_use');
-      case 'task_result':return M.every(function(m){return filled('task_'+m)});
-      case 'seq':return filled('seq_1')&&filled('seq_2');
-      case 'feedback':return true;
+      case '1':case '2':return filled('seq_'+step);
       case 'compare':return filled('compare_prefer')&&filled('compare_familiar');
       case 'final':return filled('final_pick_reason');
     }
@@ -119,42 +123,38 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     return h+'</div><div class="ends"><span>1 '+esc(low)+'</span><span>7 '+esc(high)+'</span></div>';
   }
   function text(key,rows,ph){return '<textarea data-t="'+key+'" rows="'+(rows||4)+'" maxlength="1000"'+(ph?' placeholder="'+esc(ph)+'"':'')+'>'+esc(S.a[key]||'')+'</textarea>'}
-  function block(m,inner){return '<section class="card"><span class="tag">'+esc(L[m])+'</span>'+inner+'</section>'}
   function choiceBtns(key,opts){
     return '<div class="choices">'+opts.map(function(o){
       return '<button type="button" data-k="'+key+'" data-v="'+esc(o)+'" class="'+(S.a[key]===o?'on':'')+'">'+esc(o)+'</button>';
     }).join('')+'</div>';
   }
+  function img(src){return '<img class="qimg" src="'+esc(src)+'" alt="" loading="eager">'}
 
   function view(step){
     var h='';
     if(step==='prior_use'){
-      h+='<h1>'+esc(T.priorUse)+'</h1>';
+      h+='<h1>'+esc(T.priorTitle1)+'</h1>';
+      h+=img(C.IMG.prior);
+      h+='<p class="qtitle">'+esc(T.priorTitle2)+'</p>';
       h+='<section class="card">'+choiceBtns('prior_use',[T.priorYes,T.priorNo])+'</section>';
-    }else if(step==='task_result'){
-      h+='<h1>'+esc(T.taskTitle)+'</h1><p class="sub">'+esc(T.taskSub)+'</p>';
-      M.forEach(function(m){
-        var k='task_'+m;
-        h+=block(m,'<div class="task"><p>'+esc(C.TASK)+'</p><div class="tg">'+
-          [['success',T.taskSuccess],['giveup',T.taskGiveUp]].map(function(o){
-            return '<button type="button" data-k="'+k+'" data-v="'+o[0]+'" class="'+(S.a[k]===o[0]?'on':'')+'">'+esc(o[1])+'</button>';
-          }).join('')+'</div></div>');
-      });
-    }else if(step==='seq'){
-      h+='<h1>'+esc(T.seq)+'</h1><p class="sub">방식별로 각각 답해 주세요.</p>';
-      M.forEach(function(m){h+=block(m,scale('seq_'+m,T.seqLow,T.seqHigh))});
-    }else if(step==='feedback'){
-      h+='<h1>'+esc(T.feedbackTitle)+'</h1><p class="sub">'+esc(T.feedbackSub)+'</p>';
-      M.forEach(function(m){
-        h+=block(m,C.FEEDBACK.map(function(f){return '<p class="fq">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+m,3)}).join('<div class="fgap"></div>'));
-      });
+    }else if(step==='1'||step==='2'){
+      var v=V[step];
+      h+='<h1>'+esc(T.stepTitle[v])+'</h1>';
+      h+=img(C.IMG[v]);
+      h+='<section class="card"><p class="q">'+esc(T.seq)+'</p>'+scale('seq_'+step,T.seqLow,T.seqHigh)+'</section>';
+      h+='<p class="sub" style="margin-top:28px">'+esc(T.feedbackSub)+'</p>';
+      h+=C.FEEDBACK.map(function(f){
+        return '<p class="fq" style="margin-top:18px">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+step,3,C.FEEDBACK_PH[v][f[0]]);
+      }).join('');
     }else if(step==='compare'){
       var opts=[T.cmpOne,T.cmpTwo,T.cmpSame];
       h+='<h1>두 방식을 비교해 주세요</h1>';
+      h+='<div class="imgrow"><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""></div><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""></div></div>';
       h+='<section class="card"><p class="q">'+esc(T.comparePrefer)+'</p>'+choiceBtns('compare_prefer',opts)+'</section>';
       h+='<section class="card"><p class="q">'+esc(T.compareFamiliar)+'</p>'+choiceBtns('compare_familiar',opts)+'</section>';
     }else if(step==='final'){
       h+='<h1>'+esc(T.finalTitle)+'</h1>';
+      h+='<div class="imgrow tight"><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">a. 보관</span></div><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">b. 모으기</span></div></div>';
       h+='<section class="card"><p class="q">'+esc(T.pickReason)+'</p>'+text('final_pick_reason',5)+'</section>';
     }
     return h;
@@ -208,13 +208,11 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     var payload={
       participant_id:S.pid,
       prior_use:S.a.prior_use,              // "예" | "아니요"
-      order:'1then2',                       // 노출 순서 고정: 보관-비우기(c) 위, 모으기-비우기(b) 아래
+      order:'1then2',                       // 노출 순서 고정: 보관함(c) 먼저, 모으기(b) 다음
       device_type:deviceType(),
       mapping:C.MAPPING,                    // 방식 번호 → 실제 버전
-      task_result:{},
       answers:S.a
     };
-    M.forEach(function(m){payload.task_result[m]={result:S.a['task_'+m]}});
     fetch(C.SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})})
       .then(function(o){
