@@ -5,22 +5,17 @@ const { buildRows, sendMail } = require('../lib/submit.js');
 
 const built = buildRows({
   participant_id: crypto.randomUUID(),
-  first_version: null,
-  first_impression_order: ['after', 'before'],
-  compare_layout: 'after_left',
-  task_result: { before: { result: 'success' }, after: { result: 'giveup' } },
+  prior_use: '아니요',
+  order: '1then2',
+  device_type: 'mobile',
   answers: {
-    seq_before: 3, seq_after: 6,
-    open_before: '모델 선택 메뉴를 찾기 어려웠어요.\n조금 당황했습니다. <b>테스트</b>',
-    open_after: '바로 보여서 편했어요.',
-    imp_before: 'AI 음성 비서', imp_after: 'AI 포털 서비스',
-    compare_choice: 'after', compare_reason: '입력창이 바로 보여서',
-    intent_before: 3, intent_after: 6,
-    intent_open_before: '쓰고 싶지 않아요', intent_open_after: '검색할 때 쓰고 싶어요'
+    task_1: 'success', task_2: 'giveup', seq_1: 6, seq_2: 3,
+    fb_feel_1: '보관함이 편했어요', fb_improve_2: '삭제 버튼 위치가 헷갈렸어요',
+    compare_prefer: '보관-비우기', compare_familiar: '비슷함', final_pick_reason: '보관-비우기, 모으기가 빨라서'
   }
 });
+console.log('subject =', require('../lib/submit.js').buildMail(built).subject);
 sendMail(process.env, built, { test: true }).then((r) => {
   console.log('mail_status =', r.status, r.detail ? '(' + r.detail + ')' : '');
-  if (r.status === 'skipped') console.log('→ .env.local 에 NAVER_SMTP_USER / NAVER_SMTP_PASS 를 채우고 npm install 후 다시 실행하세요.');
   process.exit(r.status === 'sent' || r.status === 'skipped' ? 0 : 1);
 });
