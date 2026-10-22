@@ -23,30 +23,28 @@ ul.dots li::before{content:"•";position:absolute;left:2px;top:0;color:var(--in
 .cta::after{content:"→";font-size:18px;font-weight:600}
 .cta:active{opacity:.85}
 .cta:disabled,.cta[aria-disabled="true"]{background:var(--off);color:#fff;pointer-events:none;cursor:not-allowed}
-header{padding-top:22px;font-size:15px;font-weight:700;color:var(--sub)}
-main{flex:1;padding-top:40px;padding-bottom:150px}
+main{flex:1;padding-top:44px;padding-bottom:48px}
 .lead{margin-top:14px;font-size:15px}
 section{margin-top:56px}
 section h2{margin-bottom:22px}
 .note{margin-top:22px;font-size:13px;color:var(--sub);word-break:keep-all}
 .opts{display:flex;flex-direction:column;gap:12px}
-.opt.done{background:var(--navy);box-shadow:none}
+.opt .lbl{display:flex;align-items:center;gap:10px}
+.opt .ic{flex:none}
 .opt small{font-size:13px;font-weight:600;opacity:.7;margin-left:8px}
-.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:14px 0 calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:center}
-.bar .wrap{display:flex;flex-direction:column;gap:8px}
-.bar .hint{text-align:center;font-size:13px;color:var(--sub)}
-.bar .hint.done{display:none}
+.finish{margin-top:40px}
+.finish .hint{margin-top:10px;text-align:center;font-size:13px;color:var(--sub)}
+.finish .hint.done{display:none}
 @media(min-width:900px){main{padding-top:72px}}
 </style>
 </head>
 <body>
-<header class="wrap">지금 여기 트렌드는 — 보관함 비교 테스트</header>
 <main class="wrap">
   <h1>지금 여기 트렌드는<br>— 보관함 비교 테스트</h1>
   <p class="lead sub">두 가지 카드 모으기 방식을 순서대로 써보고, 아래 과제를 해보세요.</p>
 
   <section aria-label="과제">
-    <h2>해볼 과제</h2>
+    <h2>과제</h2>
     <ul class="dots">
       <li>전체 탭에서 모으기 기능으로 마음에 드는 카드를 모아보세요.</li>
       <li>모은 카드를 찾아 선택해서 훑어보세요.</li>
@@ -57,15 +55,16 @@ section h2{margin-bottom:22px}
   <section>
     <h2>테스트할 방식을 선택하세요</h2>
     <nav class="opts" id="opts">
-      <a class="cta opt" id="opt1" data-n="1" href="https://its-psi-eight.vercel.app/?v=c" target="_blank" rel="opener"><span>보관-비우기</span></a>
-      <a class="cta opt" id="opt2" data-n="2" href="https://its-psi-eight.vercel.app/?v=b" target="_blank" rel="opener"><span>모으기-비우기</span></a>
+      <a class="cta opt" id="opt1" data-n="1" href="https://its-psi-eight.vercel.app/?v=c" target="_blank" rel="opener"><span class="lbl"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>보관-비우기</span></a>
+      <a class="cta opt" id="opt2" data-n="2" href="https://its-psi-eight.vercel.app/?v=b" target="_blank" rel="opener"><span class="lbl"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="12" height="12" rx="2"/><path d="M8 5h10a2 2 0 0 1 2 2v10"/><path d="M10 13v4M8 15h4"/></svg>모으기-비우기</span></a>
     </nav>
   </section>
+
+  <section class="finish">
+    <a class="cta" id="survey" href="survey.html" aria-disabled="true"><span>설문 작성하기</span></a>
+    <p class="hint" id="surveyHint">두 방식을 모두 체험한 뒤 돌아오면 작성할 수 있어요</p>
+  </section>
 </main>
-<div class="bar"><div class="wrap">
-  <a class="cta" id="survey" href="survey.html" aria-disabled="true"><span>설문 작성하기</span></a>
-  <p class="hint" id="surveyHint">두 방식을 모두 체험한 뒤 돌아오면 작성할 수 있어요</p>
-</div></div>
 <script>
 // 두 방식을 모두 열어본 뒤에만 설문 버튼 활성화 
 (function(){
