@@ -5,57 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>보관함 비교 테스트 설문</title>
 <meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <style>
-:root{--bg:#fafafc;--card:#fff;--ink:#1d1d1f;--sub:#707070;--line:#e6e6e8;--brand:#d50bb2;--brand-soft:#feecfb;--brand-text:#bd28a4}
+:root{--ink:#1a1a1a;--sub:#6b6b73;--navy:#1a1a2e;--mist:#f4f4f6;--off:#d9d9de}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;line-height:1.55;min-height:100vh;display:flex;flex-direction:column;align-items:center}
-header{width:100%;max-width:720px;padding:18px 20px 0;display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
-.dot{width:28px;height:28px;border-radius:8px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
-.prog{width:100%;max-width:720px;padding:16px 20px 0}
-.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .25s}
-.cnt{margin-top:8px;font-size:13px;color:var(--sub);font-weight:600}
-main{width:100%;max-width:720px;padding:20px 20px 120px;flex:1}
-h1{font-size:22px;line-height:1.4;font-weight:800;letter-spacing:-.02em;word-break:keep-all;margin-bottom:6px}
-.sub{color:var(--sub);font-size:15px;margin-bottom:18px;word-break:keep-all}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px}
-.tag{display:inline-block;background:var(--brand-soft);color:var(--brand-text);font-size:13px;font-weight:800;padding:5px 11px;border-radius:999px;margin-bottom:10px}
-.q{font-size:17px;font-weight:700;line-height:1.5;word-break:keep-all;margin-bottom:14px}
+body{background:#fff;color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;font-size:15px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column;align-items:center;letter-spacing:-.01em}
+.wrap{width:100%;max-width:720px;padding-left:24px;padding-right:24px}
+h1{font-size:clamp(18px,4vw,20px);line-height:1.35;font-weight:800;letter-spacing:-.035em;word-break:keep-all}
+h2{font-size:17px;line-height:1.5;font-weight:700;letter-spacing:-.02em;word-break:keep-all}
+.sub{color:var(--sub);word-break:keep-all}
+ul.dots{list-style:none;display:flex;flex-direction:column;gap:14px}
+ul.dots li{position:relative;padding-left:20px;word-break:keep-all}
+ul.dots li::before{content:"•";position:absolute;left:2px;top:0;color:var(--ink)}
+.cta{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:0 24px;border:0;border-radius:999px;background:var(--navy);color:#fff;font-family:inherit;font-size:15px;font-weight:700;letter-spacing:-.01em;text-decoration:none;cursor:pointer}
+.cta::after{content:"→";font-size:18px;font-weight:600}
+.cta:active{opacity:.85}
+.cta:disabled,.cta[aria-disabled="true"]{background:var(--off);color:#fff;pointer-events:none;cursor:not-allowed}
+.prog{padding-top:20px}
+.bar{height:3px;background:var(--mist);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--navy);width:0;transition:width .25s}
+.cnt{margin-top:10px;font-size:13px;color:var(--sub);font-weight:600}
+main{flex:1;padding-top:36px;padding-bottom:140px}
+main h1{margin-bottom:10px}
+main>.sub{margin-bottom:8px}
+.card{margin-top:44px}
+.tag{display:block;font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+.q{font-size:16px;font-weight:600;line-height:1.55;word-break:keep-all;margin-bottom:16px}
+.fq{position:relative;padding-left:20px;font-size:14px;font-weight:600;margin-bottom:10px}
+.fq::before{content:"•";position:absolute;left:2px}
+.fgap{height:22px}
 .scale{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.scale button{min-height:48px;border:2px solid var(--line);background:#fff;border-radius:12px;font-size:17px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
-.scale button.on{background:var(--brand);border-color:var(--brand);color:#fff}
-.ends{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:13px;color:var(--sub)}
+.scale button{min-height:52px;border:0;background:var(--mist);border-radius:12px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit}
+.scale button.on{background:var(--navy);color:#fff}
+.ends{display:flex;justify-content:space-between;gap:10px;margin-top:10px;font-size:13px;color:var(--sub)}
 .ends span{flex:1}
 .ends span:last-child{text-align:right}
-textarea{width:100%;min-height:112px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;font-family:inherit;color:var(--ink);resize:vertical;outline:0;background:#fff}
-textarea:focus{border-color:var(--brand)}
+textarea{width:100%;min-height:104px;border:0;border-radius:12px;padding:14px 16px;font-size:16px;line-height:1.6;font-family:inherit;color:var(--ink);resize:vertical;outline:0;background:var(--mist)}
+textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 .choices{display:flex;flex-direction:column;gap:10px}
-.choices button{min-height:52px;border:2px solid var(--line);background:#fff;border-radius:14px;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
-.choices button.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-text)}
-.task{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
-.task:first-of-type{border-top:0}
-.task p{flex:1;font-size:15px;font-weight:600;line-height:1.45;word-break:keep-all}
-.task .tg{display:flex;gap:6px;flex:none}
-.task .tg button{min-width:58px;height:42px;border:2px solid var(--line);background:#fff;border-radius:12px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
-.task .tg button.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-text)}
-.nav{position:fixed;left:0;right:0;bottom:0;background:#fffffff0;border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:10px;backdrop-filter:blur(6px)}
-.nav .in{width:100%;max-width:720px;display:flex;gap:10px}
-.nav button{height:54px;border-radius:14px;font-size:17px;font-weight:800;border:0;cursor:pointer;font-family:inherit}
-.nav .prev{flex:0 0 96px;background:#fff;border:2px solid var(--line);color:var(--ink)}
-.nav .next{flex:1;background:var(--brand);color:#fff}
-.nav .next:disabled{background:#e6e6e8;color:#86868b;cursor:not-allowed}
-.center{text-align:center;padding-top:56px}
-.center .big{font-size:52px;margin-bottom:10px}
-.err{background:#fff0f0;border:1px solid #ffc9c9;color:#b42318;border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:14px}
-@media(max-width:380px){.q{font-size:16px}.scale button{font-size:15px}}
+.choices button{min-height:56px;border:0;background:var(--mist);border-radius:14px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;text-align:left;padding:0 20px}
+.choices button.on{background:var(--navy);color:#fff}
+.task{display:flex;flex-direction:column;gap:14px}
+.task p{font-size:15px;font-weight:600;word-break:keep-all}
+.task .tg{display:flex;gap:10px}
+.task .tg button{flex:1;height:52px;border:0;background:var(--mist);border-radius:14px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit}
+.task .tg button.on{background:var(--navy);color:#fff}
+.nav{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:14px 0 calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.nav .in{display:flex;align-items:center;gap:12px}
+.nav .prev{flex:0 0 auto;height:56px;padding:0 8px;background:none;border:0;color:var(--sub);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
+.nav .next{flex:1}
+.center{padding-top:72px}
+.center h1{margin-bottom:14px}
+.err{background:var(--mist);color:#b42318;border-radius:12px;padding:14px 16px;font-size:14px;margin-bottom:20px}
+@media(min-width:900px){main{padding-top:56px}}
 </style>
 </head>
 <body>
-<header><span class="dot">i</span>보관함 비교 테스트 설문</header>
-<div class="prog" id="prog"><div class="bar"><i id="barFill"></i></div><div class="cnt" id="cnt"></div></div>
-<main id="main"></main>
-<div class="nav" id="nav"><div class="in"><button class="prev" id="prev">이전</button><button class="next" id="next" disabled>다음</button></div></div>
+<header class="wrap" style="padding-top:22px;font-size:15px;font-weight:700;color:var(--sub)">보관함 비교 테스트 설문</header>
+<div class="prog wrap" id="prog"><div class="bar"><i id="barFill"></i></div><div class="cnt" id="cnt"></div></div>
+<main class="wrap" id="main"></main>
+<div class="nav" id="nav"><div class="in wrap"><button class="prev" id="prev">이전</button><button class="cta next" id="next" disabled>다음</button></div></div>
 
 <script src="survey/config.js"></script>
 <script>
@@ -119,7 +129,7 @@ textarea:focus{border-color:var(--brand)}
   function view(step){
     var h='';
     if(step==='prior_use'){
-      h+='<h1>'+esc(T.priorUse)+'</h1><p class="sub">&nbsp;</p>';
+      h+='<h1>'+esc(T.priorUse)+'</h1>';
       h+='<section class="card">'+choiceBtns('prior_use',[T.priorYes,T.priorNo])+'</section>';
     }else if(step==='task_result'){
       h+='<h1>'+esc(T.taskTitle)+'</h1><p class="sub">'+esc(T.taskSub)+'</p>';
@@ -136,11 +146,11 @@ textarea:focus{border-color:var(--brand)}
     }else if(step==='feedback'){
       h+='<h1>'+esc(T.feedbackTitle)+'</h1><p class="sub">'+esc(T.feedbackSub)+'</p>';
       M.forEach(function(m){
-        h+=block(m,C.FEEDBACK.map(function(f){return '<p class="q" style="font-size:15px;margin-bottom:8px">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+m,3)}).join('<div style="height:14px"></div>'));
+        h+=block(m,C.FEEDBACK.map(function(f){return '<p class="fq">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+m,3)}).join('<div class="fgap"></div>'));
       });
     }else if(step==='compare'){
       var opts=[T.cmpOne,T.cmpTwo,T.cmpSame];
-      h+='<h1>두 방식을 비교해 주세요</h1><p class="sub">&nbsp;</p>';
+      h+='<h1>두 방식을 비교해 주세요</h1>';
       h+='<section class="card"><p class="q">'+esc(T.comparePrefer)+'</p>'+choiceBtns('compare_prefer',opts)+'</section>';
       h+='<section class="card"><p class="q">'+esc(T.compareFamiliar)+'</p>'+choiceBtns('compare_familiar',opts)+'</section>';
     }else if(step==='final'){
@@ -154,7 +164,7 @@ textarea:focus{border-color:var(--brand)}
     var main=$('main');
     if(S.done){
       $('prog').style.display='none';$('nav').style.display='none';
-      main.innerHTML='<div class="center"><div class="big">🙌</div><h1>참여해 주셔서 감사합니다</h1><p class="sub">소중한 의견은 서비스 개선에 큰 도움이 됩니다.</p><p class="sub" style="margin-top:18px;color:var(--ink);font-weight:700">테스트가 종료되어 화면을 닫아주시면 됩니다.<br>수고 많으셨습니다.</p></div>';
+      main.innerHTML='<div class="center"><h1>참여해 주셔서<br>감사합니다</h1><p class="sub">소중한 의견은 서비스 개선에 큰 도움이 됩니다.</p><p class="sub" style="margin-top:22px;color:var(--ink);font-weight:700">테스트가 종료되어 화면을 닫아주시면 됩니다.<br>수고 많으셨습니다.</p></div>';
       return;
     }
     var list=steps(), step=list[S.step];

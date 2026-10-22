@@ -3,113 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>젤리아이 UX 설문</title>
+<title>보관함 비교 테스트 설문</title>
 <meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <style>
-:root{--bg:#f6f7fb;--card:#fff;--ink:#14142b;--sub:#5d6178;--line:#e4e6ef;--brand:#4f46e5;--brand-soft:#eef0ff}
+:root{--ink:#1a1a1a;--sub:#6b6b73;--navy:#1a1a2e;--mist:#f4f4f6;--off:#d9d9de}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;line-height:1.55;min-height:100vh;display:flex;flex-direction:column;align-items:center}
-header{width:100%;max-width:720px;padding:18px 20px 0;display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
-.dot{width:28px;height:28px;border-radius:8px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
-.prog{width:100%;max-width:720px;padding:16px 20px 0}
-.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .25s}
-.cnt{margin-top:8px;font-size:13px;color:var(--sub);font-weight:600}
-main{width:100%;max-width:720px;padding:20px 20px 120px;flex:1}
-h1{font-size:22px;line-height:1.4;font-weight:800;letter-spacing:-.02em;word-break:keep-all;margin-bottom:6px}
-.sub{color:var(--sub);font-size:15px;margin-bottom:18px;word-break:keep-all}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px}
-.tag{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:13px;font-weight:800;padding:5px 11px;border-radius:999px;margin-bottom:10px}
-.q{font-size:17px;font-weight:700;line-height:1.5;word-break:keep-all;margin-bottom:14px}
+body{background:#fff;color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;font-size:15px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column;align-items:center;letter-spacing:-.01em}
+.wrap{width:100%;max-width:720px;padding-left:24px;padding-right:24px}
+h1{font-size:clamp(18px,4vw,20px);line-height:1.35;font-weight:800;letter-spacing:-.035em;word-break:keep-all}
+h2{font-size:17px;line-height:1.5;font-weight:700;letter-spacing:-.02em;word-break:keep-all}
+.sub{color:var(--sub);word-break:keep-all}
+ul.dots{list-style:none;display:flex;flex-direction:column;gap:14px}
+ul.dots li{position:relative;padding-left:20px;word-break:keep-all}
+ul.dots li::before{content:"•";position:absolute;left:2px;top:0;color:var(--ink)}
+.cta{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:0 24px;border:0;border-radius:999px;background:var(--navy);color:#fff;font-family:inherit;font-size:15px;font-weight:700;letter-spacing:-.01em;text-decoration:none;cursor:pointer}
+.cta::after{content:"→";font-size:18px;font-weight:600}
+.cta:active{opacity:.85}
+.cta:disabled,.cta[aria-disabled="true"]{background:var(--off);color:#fff;pointer-events:none;cursor:not-allowed}
+.prog{padding-top:20px}
+.bar{height:3px;background:var(--mist);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--navy);width:0;transition:width .25s}
+.cnt{margin-top:10px;font-size:13px;color:var(--sub);font-weight:600}
+main{flex:1;padding-top:36px;padding-bottom:140px}
+main h1{margin-bottom:10px}
+main>.sub{margin-bottom:8px}
+.card{margin-top:44px}
+.tag{display:block;font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+.q{font-size:16px;font-weight:600;line-height:1.55;word-break:keep-all;margin-bottom:16px}
+.fq{position:relative;padding-left:20px;font-size:14px;font-weight:600;margin-bottom:10px}
+.fq::before{content:"•";position:absolute;left:2px}
+.fgap{height:22px}
 .scale{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.scale button{min-height:48px;border:2px solid var(--line);background:#fff;border-radius:12px;font-size:17px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
-.scale button.on{background:var(--brand);border-color:var(--brand);color:#fff}
-.ends{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:13px;color:var(--sub)}
+.scale button{min-height:52px;border:0;background:var(--mist);border-radius:12px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit}
+.scale button.on{background:var(--navy);color:#fff}
+.ends{display:flex;justify-content:space-between;gap:10px;margin-top:10px;font-size:13px;color:var(--sub)}
 .ends span{flex:1}
 .ends span:last-child{text-align:right}
-textarea{width:100%;min-height:112px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;font-family:inherit;color:var(--ink);resize:vertical;outline:0;background:#fff}
-textarea:focus{border-color:var(--brand)}
-.shot{display:block;width:100%;max-width:300px;margin:0 auto 16px;border:1px solid var(--line);border-radius:14px;cursor:zoom-in;background:#fff}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.pair figure{text-align:center}
-.pair figcaption{font-weight:800;font-size:15px;margin-bottom:8px}
-.pair img{width:100%;border:1px solid var(--line);border-radius:12px;cursor:zoom-in;background:#fff}
-.hint{font-size:12.5px;color:var(--sub);text-align:center;margin:-6px 0 14px}
+textarea{width:100%;min-height:104px;border:0;border-radius:12px;padding:14px 16px;font-size:16px;line-height:1.6;font-family:inherit;color:var(--ink);resize:vertical;outline:0;background:var(--mist)}
+textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 .choices{display:flex;flex-direction:column;gap:10px}
-.choices button{min-height:52px;border:2px solid var(--line);background:#fff;border-radius:14px;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
-.choices button.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand)}
-.nav{position:fixed;left:0;right:0;bottom:0;background:#fffffff0;border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:10px;backdrop-filter:blur(6px)}
-.nav .in{width:100%;max-width:720px;display:flex;gap:10px}
-.nav button{height:54px;border-radius:14px;font-size:17px;font-weight:800;border:0;cursor:pointer;font-family:inherit}
-.nav .prev{flex:0 0 96px;background:#fff;border:2px solid var(--line);color:var(--ink)}
-.nav .next{flex:1;background:var(--brand);color:#fff}
-.nav .next:disabled{background:#d9dbe6;color:#8b8fa3;cursor:not-allowed}
-.center{text-align:center;padding-top:56px}
-.center .big{font-size:52px;margin-bottom:10px}
-.err{background:#fff0f0;border:1px solid #ffc9c9;color:#b42318;border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:14px}
-.lb{position:fixed;inset:0;background:#000d;z-index:50;overflow:auto;display:none;-webkit-overflow-scrolling:touch}
-.lb.show{display:block}
-.lb img{display:block;width:100vw;max-width:none;margin:0 auto;cursor:zoom-in}
-.lb.z img{width:220vw;cursor:zoom-out}
-.lb .x{position:fixed;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#000;font-size:22px;z-index:51;cursor:pointer}
-.lb .tip{position:fixed;left:0;right:0;bottom:16px;text-align:center;color:#fff;font-size:13px;z-index:51;pointer-events:none}
-@media(max-width:380px){.q{font-size:16px}.scale button{font-size:15px}}
-.card.v-before .tag{background:#fff3bf;color:#7a5b00}
-.card.v-before .scale button.on{background:#f5c518;border-color:#f5c518;color:#3d2e00}
-.card.v-before textarea:focus{border-color:#f5c518}
-.card.v-after .tag{background:#e6f6cc;color:#3d6b10}
-.card.v-after .scale button.on{background:#9ccc3c;border-color:#9ccc3c;color:#1f3a05}
-.card.v-after textarea:focus{border-color:#9ccc3c}
-.choices button.v-before.on{border-color:#f5c518;background:#fff8d6;color:#7a5b00}
-.choices button.v-after.on{border-color:#9ccc3c;background:#eef9d9;color:#3d6b10}
-.pair figcaption span{display:inline-block;padding:3px 10px;border-radius:999px;font-size:14px}
-.pair figcaption .v-before{background:#fff3bf;color:#7a5b00}
-.pair figcaption .v-after{background:#e6f6cc;color:#3d6b10}
-.ghost{display:flex;width:fit-content;align-items:center;gap:6px;min-height:44px;padding:0 14px;margin:0 0 14px;border:1.5px solid var(--line);background:transparent;border-radius:12px;color:var(--sub);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer}
-.ghost:hover,.ghost:active{border-color:var(--brand);color:var(--brand)}
-.card.v-before .ghost:hover,.card.v-before .ghost:active{border-color:#f5c518;color:#7a5b00}
-.card.v-after .ghost:hover,.card.v-after .ghost:active{border-color:#9ccc3c;color:#3d6b10}
-h1.long{font-size:20px;margin-bottom:18px}
-.lb.pop{background:#000a;overflow:hidden;display:none;align-items:center;justify-content:center}
-.lb.pop.show{display:flex}
-.lb.pop img{width:auto;height:auto;max-width:min(300px,calc(100vw - 32px));max-height:calc(100vh - 110px);margin:0;border-radius:14px;background:#fff;cursor:pointer}
-.lb.pop .tip{display:none}
-
-/* 이미지 스켈레톤 + 로딩 */
-@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
-@keyframes spin{to{transform:rotate(360deg)}}
-.imgbox{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#eceef5;width:100%}
-.imgbox .sk{position:absolute;inset:0;background:linear-gradient(90deg,#eceef5 25%,#f7f8fc 50%,#eceef5 75%);background-size:200% 100%;animation:sh 1.3s linear infinite}
-.imgbox .spin,.lb .lbspin{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid #c9cde0;border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
-.imgbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s;border:0;border-radius:0;max-width:none;margin:0;cursor:default}
-.imgbox.loaded{cursor:zoom-in}
-.imgbox.loaded img{opacity:1;cursor:zoom-in}
-.imgbox.loaded .sk,.imgbox.loaded .spin{display:none}
-.imgbox.failed .sk,.imgbox.failed .spin{display:none}
-.imgbox .fail{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;font-size:13px;color:var(--sub);padding:12px;cursor:pointer}
-.imgbox.failed .fail{display:flex}
-.imgbox.shot{max-width:300px;margin:0 auto 16px}
-.pair .imgbox{border-radius:12px}
-.lb .lbspin{position:fixed;display:none;border-color:#ffffff55;border-top-color:#fff}
-.lb.loading .lbspin{display:block}
-.lb.loading img{visibility:hidden}
+.choices button{min-height:56px;border:0;background:var(--mist);border-radius:14px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;text-align:left;padding:0 20px}
+.choices button.on{background:var(--navy);color:#fff}
+.task{display:flex;flex-direction:column;gap:14px}
+.task p{font-size:15px;font-weight:600;word-break:keep-all}
+.task .tg{display:flex;gap:10px}
+.task .tg button{flex:1;height:52px;border:0;background:var(--mist);border-radius:14px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit}
+.task .tg button.on{background:var(--navy);color:#fff}
+.nav{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:14px 0 calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.nav .in{display:flex;align-items:center;gap:12px}
+.nav .prev{flex:0 0 auto;height:56px;padding:0 8px;background:none;border:0;color:var(--sub);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
+.nav .next{flex:1}
+.center{padding-top:72px}
+.center h1{margin-bottom:14px}
+.err{background:var(--mist);color:#b42318;border-radius:12px;padding:14px 16px;font-size:14px;margin-bottom:20px}
+@media(min-width:900px){main{padding-top:56px}}
 </style>
 </head>
 <body>
-<header><span class="dot">Z</span>젤리아이 UX 설문</header>
-<div class="prog" id="prog"><div class="bar"><i id="barFill"></i></div><div class="cnt" id="cnt"></div></div>
-<main id="main"></main>
-<div class="nav" id="nav"><div class="in"><button class="prev" id="prev">이전</button><button class="next" id="next" disabled>다음</button></div></div>
-
-<div class="lb" id="lb" role="dialog" aria-label="이미지 확대"><button class="x" id="lbX" aria-label="닫기">✕</button><div class="lbspin"></div><img id="lbImg" alt=""><div class="tip" id="lbTip">탭하면 확대/축소 · 스크롤로 이동</div></div>
+<header class="wrap" style="padding-top:22px;font-size:15px;font-weight:700;color:var(--sub)">보관함 비교 테스트 설문</header>
+<div class="prog wrap" id="prog"><div class="bar"><i id="barFill"></i></div><div class="cnt" id="cnt"></div></div>
+<main class="wrap" id="main"></main>
+<div class="nav" id="nav"><div class="in wrap"><button class="prev" id="prev">이전</button><button class="cta next" id="next" disabled>다음</button></div></div>
 
 <script src="survey/config.js"></script>
 <script>
 (function(){
-  var C=window.SURVEY_CONFIG, L=C.LABELS, T=C.TEXT;
+  var C=window.SURVEY_CONFIG, L=C.LABELS, T=C.TEXT, M=['1','2'];
   var $=function(id){return document.getElementById(id)};
-  var STEPS=['q1','q2','q3a','q3b','q4','q5'];
+  var ALL=['prior_use','task_result','seq','feedback','compare','final'];
 
   /* ---------- 상태 (localStorage 복구) ---------- */
   function uuid(){
@@ -121,32 +84,29 @@ h1.long{font-size:20px;margin-bottom:18px}
   }
   function load(){try{var x=JSON.parse(localStorage.getItem(C.STORAGE_KEY))||null;if(x){x.sending=false;x.err=''}return x}catch(e){return null}}
   function save(){try{localStorage.setItem(C.STORAGE_KEY,JSON.stringify(S))}catch(e){}}
-  function shuffle2(){return Math.random()<.5?['before','after']:['after','before']}
+  function stored(k){try{return localStorage.getItem(k)}catch(e){return null}}
   var S=load();
   if(!S||!S.pid){
-    var shared=null;try{shared=localStorage.getItem('zeli_pid')}catch(e){}
-    var pidNew=shared||uuid();try{localStorage.setItem('zeli_pid',pidNew)}catch(e){}
-    S={pid:pidNew,step:0,a:{},o3:shuffle2(),done:false};
+    var pidNew=stored(C.PID_KEY)||uuid();try{localStorage.setItem(C.PID_KEY,pidNew)}catch(e){}
+    S={pid:pidNew,step:0,a:{},done:false};
     save();
   }
-  function stored(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function steps(){return ALL}
+  function deviceType(){
+    var mobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||'');
+    return (mobile||window.innerWidth<768)?'mobile':'pc';
+  }
 
   /* ---------- 유효성 ---------- */
   function filled(k){var v=S.a[k];return v!==undefined&&v!==null&&String(v).trim()!==''}
   function valid(step){
     switch(step){
-      case 'q1':return filled('seq_before')&&filled('seq_after');
-      case 'q2':return filled('open_before')&&filled('open_after');
-      case 'q3a':return filled('imp_'+S.o3[0]);
-      case 'q3b':return filled('imp_'+S.o3[1]);
-      case 'q4':
-        if(!filled('past_model_switch')||!filled('past_chatbot_use_recent'))return false;
-        if(S.a.past_chatbot_use_recent===T.pastRecentYes){
-          if(!filled('past_chatbot_use_when')||!filled('past_chatbot_use_purpose'))return false;
-          if(S.a.past_chatbot_use_when===T.pastWhenOther&&!filled('past_chatbot_use_when_other'))return false;
-        }
-        return true;
-      case 'q5':return filled('intent_before')&&filled('intent_after')&&filled('intent_open_before')&&filled('intent_open_after');
+      case 'prior_use':return filled('prior_use');
+      case 'task_result':return M.every(function(m){return filled('task_'+m)});
+      case 'seq':return filled('seq_1')&&filled('seq_2');
+      case 'feedback':return true;
+      case 'compare':return filled('compare_prefer')&&filled('compare_familiar');
+      case 'final':return filled('final_pick_reason');
     }
     return false;
   }
@@ -158,55 +118,44 @@ h1.long{font-size:20px;margin-bottom:18px}
     for(var i=1;i<=7;i++)h+='<button type="button" data-k="'+key+'" data-v="'+i+'" role="radio" aria-checked="'+(S.a[key]===i)+'" class="'+(S.a[key]===i?'on':'')+'">'+i+'</button>';
     return h+'</div><div class="ends"><span>1 '+esc(low)+'</span><span>7 '+esc(high)+'</span></div>';
   }
-  function imgBox(kind,v,extra){
-    var sz=(C.SIZES&&C.SIZES[kind]&&C.SIZES[kind][v])||[390,844];
-    return '<div class="imgbox'+(extra?' '+extra:'')+'" data-zoom="1" style="aspect-ratio:'+sz[0]+' / '+sz[1]+'">'+
-      '<div class="sk"></div><div class="spin" role="status" aria-label="이미지 불러오는 중"></div>'+
-      '<img src="'+C.IMAGES[kind][v]+'" alt="'+esc(C.ALT[kind][v])+'" decoding="async">'+
-      '<div class="fail">이미지를 불러오지 못했어요<br>탭하면 다시 시도합니다</div></div>';
+  function text(key,rows,ph){return '<textarea data-t="'+key+'" rows="'+(rows||4)+'" maxlength="1000"'+(ph?' placeholder="'+esc(ph)+'"':'')+'>'+esc(S.a[key]||'')+'</textarea>'}
+  function block(m,inner){return '<section class="card"><span class="tag">'+esc(L[m])+'</span>'+inner+'</section>'}
+  function choiceBtns(key,opts){
+    return '<div class="choices">'+opts.map(function(o){
+      return '<button type="button" data-k="'+key+'" data-v="'+esc(o)+'" class="'+(S.a[key]===o?'on':'')+'">'+esc(o)+'</button>';
+    }).join('')+'</div>';
   }
-  function text(key,rows){return '<textarea data-t="'+key+'" rows="'+(rows||4)+'" maxlength="1000">'+esc(S.a[key]||'')+'</textarea>'}
-  function block(v,inner){return '<section class="card v-'+v+'"><span class="tag">'+esc(L[v])+'</span>'+inner+'</section>'}
 
   function view(step){
     var h='';
-    if(step==='q1'){
-      h+='<h1>미션 화면을 찾으셨는지 확인할게요</h1><p class="sub">이미지 다시보기를 클릭하면 미션화면이 나와요</p>';
-      ['before','after'].forEach(function(v){
-        h+=block(v,'<button type="button" class="ghost" data-img="'+C.IMAGES.chat[v]+'" data-alt="'+esc(C.ALT.chat[v])+'">'+esc(T.reviewImage)+'</button><p class="q">'+esc(T.seq)+'</p>'+scale('seq_'+v,T.seqLow,T.seqHigh));
+    if(step==='prior_use'){
+      h+='<h1>'+esc(T.priorUse)+'</h1>';
+      h+='<section class="card">'+choiceBtns('prior_use',[T.priorYes,T.priorNo])+'</section>';
+    }else if(step==='task_result'){
+      h+='<h1>'+esc(T.taskTitle)+'</h1><p class="sub">'+esc(T.taskSub)+'</p>';
+      M.forEach(function(m){
+        var k='task_'+m;
+        h+=block(m,'<div class="task"><p>'+esc(C.TASK)+'</p><div class="tg">'+
+          [['success',T.taskSuccess],['giveup',T.taskGiveUp]].map(function(o){
+            return '<button type="button" data-k="'+k+'" data-v="'+o[0]+'" class="'+(S.a[k]===o[0]?'on':'')+'">'+esc(o[1])+'</button>';
+          }).join('')+'</div></div>');
       });
-    }else if(step==='q2'){
-      h+='<h1 class="long">'+esc(T.experienceTitle)+'</h1>';
-      ['before','after'].forEach(function(v){
-        h+=block(v,'<button type="button" class="ghost" data-img="'+C.IMAGES.chat[v]+'" data-alt="'+esc(C.ALT.chat[v])+'">'+esc(T.reviewImage)+'</button>'+text('open_'+v));
+    }else if(step==='seq'){
+      h+='<h1>'+esc(T.seq)+'</h1><p class="sub">방식별로 각각 답해 주세요.</p>';
+      M.forEach(function(m){h+=block(m,scale('seq_'+m,T.seqLow,T.seqHigh))});
+    }else if(step==='feedback'){
+      h+='<h1>'+esc(T.feedbackTitle)+'</h1><p class="sub">'+esc(T.feedbackSub)+'</p>';
+      M.forEach(function(m){
+        h+=block(m,C.FEEDBACK.map(function(f){return '<p class="fq">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+m,3)}).join('<div class="fgap"></div>'));
       });
-    }else if(step==='q3a'||step==='q3b'){
-      var v=S.o3[step==='q3a'?0:1];
-      h+='<h1>첫인상을 알려주세요</h1><p class="sub">'+(step==='q3a'?'1':'2')+' / 2</p>';
-      h+=imgBox('start',v,'shot');
-      h+='<p class="hint">이미지를 탭하면 크게 볼 수 있어요</p>';
-      h+='<section class="card"><p class="q">'+esc(T.firstImpression)+'</p>'+text('imp_'+v)+'</section>';
-    }else if(step==='q4'){
-      var yes=S.a.past_chatbot_use_recent===T.pastRecentYes, oth=S.a.past_chatbot_use_when===T.pastWhenOther;
-      function choiceBtns(key,opts){
-        return '<div class="choices">'+opts.map(function(o){
-          return '<button type="button" data-k="'+key+'" data-v="'+esc(o)+'" class="'+(S.a[key]===o?'on':'')+'">'+esc(o)+'</button>';
-        }).join('')+'</div>';
-      }
-      h+='<h1>'+esc(T.pastTitle)+'</h1>';
-      h+='<section class="card"><p class="q">'+esc(T.pastRecent)+'</p>'+choiceBtns('past_chatbot_use_recent',[T.pastRecentYes,T.pastRecentNo])+'</section>';
-      h+='<div id="pastMore" style="display:'+(yes?'block':'none')+'">';
-      h+='<section class="card"><p class="q">'+esc(T.pastWhen)+'</p>'+choiceBtns('past_chatbot_use_when',[T.pastWhenToday,T.pastWhenYesterday,T.pastWhenOther]);
-      h+='<div id="whenOther" style="margin-top:12px;display:'+(oth?'block':'none')+'"><textarea data-t="past_chatbot_use_when_other" rows="2" maxlength="300" placeholder="'+esc(T.pastWhenOtherPlaceholder)+'">'+esc(S.a.past_chatbot_use_when_other||'')+'</textarea></div></section>';
-      h+='<section class="card"><p class="q">'+esc(T.pastPurpose)+'</p>'+text('past_chatbot_use_purpose')+'</section>';
-      h+='</div>';
-      h+='<section class="card"><p class="q">'+esc(T.pastModelSwitch)+'<span style="display:block;margin-top:4px;font-size:13px;font-weight:500;color:var(--sub)">'+esc(T.pastModelSwitchNote)+'</span></p>'+text('past_model_switch')+'</section>';
-    }else if(step==='q5'){
-      h+='<h1>마지막 질문이에요</h1><p class="sub">버전별로 각각 답해 주세요.</p>';
-      ['before','after'].forEach(function(v){
-        h+=block(v,'<button type="button" class="ghost" data-img="'+C.IMAGES.chat[v]+'" data-alt="'+esc(C.ALT.chat[v])+'">'+esc(T.reviewImage)+'</button><p class="q">'+esc(T.intent.replace('{label}',L[v]))+'</p>'+scale('intent_'+v,T.intentLow,T.intentHigh)+
-          '<p class="q" style="margin-top:20px">'+esc(T.intentReason)+'</p>'+text('intent_open_'+v));
-      });
+    }else if(step==='compare'){
+      var opts=[T.cmpOne,T.cmpTwo,T.cmpSame];
+      h+='<h1>두 방식을 비교해 주세요</h1>';
+      h+='<section class="card"><p class="q">'+esc(T.comparePrefer)+'</p>'+choiceBtns('compare_prefer',opts)+'</section>';
+      h+='<section class="card"><p class="q">'+esc(T.compareFamiliar)+'</p>'+choiceBtns('compare_familiar',opts)+'</section>';
+    }else if(step==='final'){
+      h+='<h1>'+esc(T.finalTitle)+'</h1>';
+      h+='<section class="card"><p class="q">'+esc(T.pickReason)+'</p>'+text('final_pick_reason',5)+'</section>';
     }
     return h;
   }
@@ -215,86 +164,40 @@ h1.long{font-size:20px;margin-bottom:18px}
     var main=$('main');
     if(S.done){
       $('prog').style.display='none';$('nav').style.display='none';
-      main.innerHTML='<div class="center"><div class="big">🙌</div><h1>참여해 주셔서 감사합니다</h1><p class="sub">소중한 의견은 서비스 개선에 큰 도움이 됩니다.</p><p class="sub" style="margin-top:18px;color:var(--ink);font-weight:700">테스트가 종료되어 화면을 닫아주시면 됩니다.<br>수고 많으셨습니다.</p></div>';
+      main.innerHTML='<div class="center"><h1>참여해 주셔서<br>감사합니다</h1><p class="sub">소중한 의견은 서비스 개선에 큰 도움이 됩니다.</p><p class="sub" style="margin-top:22px;color:var(--ink);font-weight:700">테스트가 종료되어 화면을 닫아주시면 됩니다.<br>수고 많으셨습니다.</p></div>';
       return;
     }
-    var step=STEPS[S.step];
-    $('barFill').style.width=((S.step+1)/STEPS.length*100)+'%';
-    $('cnt').textContent=(S.step+1)+' / '+STEPS.length;
+    var list=steps(), step=list[S.step];
+    $('barFill').style.width=((S.step+1)/list.length*100)+'%';
+    $('cnt').textContent=(S.step+1)+' / '+list.length;
     main.innerHTML=(S.err?'<div class="err">'+esc(S.err)+'</div>':'')+view(step);
-    bindImages();
     $('prev').style.visibility=S.step===0?'hidden':'visible';
-    $('next').textContent=S.step===STEPS.length-1?(S.sending?'제출 중…':'제출하기'):'다음';
+    $('next').textContent=S.step===list.length-1?(S.sending?'제출 중…':'제출하기'):'다음';
     updateNext();
-    main.scrollTop=0;window.scrollTo(0,0);
+    window.scrollTo(0,0);
   }
-  function bindImages(){
-    document.querySelectorAll('.imgbox img').forEach(function(img){
-      var box=img.parentNode;
-      function ok(){box.classList.remove('failed');box.classList.add('loaded')}
-      function bad(){box.classList.add('failed')}
-      img.onload=ok;img.onerror=bad;
-      if(img.complete&&img.naturalWidth>0)ok();else if(img.complete)bad();
-      box.querySelector('.fail').onclick=function(e){
-        e.stopPropagation();box.classList.remove('failed');
-        var src=img.getAttribute('src');img.removeAttribute('src');img.setAttribute('src',src+(src.indexOf('?')<0?'?r=':'&r=')+Date.now());
-      };
-    });
-  }
-  // 첫 화면부터 모든 이미지를 미리 받아 둠 (뒤에서 바로 뜨도록)
-  ['start','chat'].forEach(function(k){['before','after'].forEach(function(v){var i=new Image();i.src=C.IMAGES[k][v]})});
-
-  function syncPast(){
-    var m=$('pastMore'),o=$('whenOther');
-    if(m)m.style.display=S.a.past_chatbot_use_recent===T.pastRecentYes?'block':'none';
-    if(o)o.style.display=S.a.past_chatbot_use_when===T.pastWhenOther?'block':'none';
-  }
-  function updateNext(){$('next').disabled=!valid(STEPS[S.step])||!!S.sending}
+  function updateNext(){$('next').disabled=!valid(steps()[S.step])||!!S.sending}
 
   /* ---------- 입력 ---------- */
   document.addEventListener('click',function(e){
     var b=e.target.closest&&e.target.closest('[data-k]');
-    if(b&&$('main').contains(b)){
-      var v=b.getAttribute('data-v');
-      S.a[b.getAttribute('data-k')]=/^\d+$/.test(v)?Number(v):v;
-      save();
-      if(b.classList.contains('choices')||b.parentElement.classList.contains('choices')||b.parentElement.classList.contains('scale')){
-        b.parentElement.querySelectorAll('button').forEach(function(x){
-          var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-checked',on)});
-      }
-      syncPast();updateNext();return;
-    }
-    var gh=e.target.closest&&e.target.closest('[data-img]');
-    if(gh){openLb(gh.getAttribute('data-img'),gh.getAttribute('data-alt')||'',true);return}
-    var im=e.target.closest&&e.target.closest('.imgbox');
-    if(im){
-      if(!im.classList.contains('loaded'))return;   // 로딩 중에는 눌러도 아무 일도 없음
-      var ii=im.querySelector('img');openLb(ii.currentSrc||ii.src,ii.alt,false);return;
-    }
+    if(!b||!$('main').contains(b))return;
+    var v=b.getAttribute('data-v');
+    S.a[b.getAttribute('data-k')]=/^\d+$/.test(v)?Number(v):v;
+    save();
+    b.parentElement.querySelectorAll('button').forEach(function(x){
+      var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-checked',on)});
+    updateNext();
   });
-  function openLb(src,alt,pop){
-    var lb=$('lb'),img=$('lbImg');
-    lb.classList.remove('z','pop');if(pop)lb.classList.add('pop');
-    lb.classList.add('show','loading');
-    img.onload=function(){lb.classList.remove('loading')};
-    img.onerror=function(){lb.classList.remove('loading')};
-    img.alt=alt;img.src=src;
-    if(img.complete&&img.naturalWidth>0)lb.classList.remove('loading');
-  }
   $('main').addEventListener('input',function(e){
     var k=e.target.getAttribute&&e.target.getAttribute('data-t');
     if(!k)return;S.a[k]=e.target.value;save();updateNext();
   });
-  $('lb').addEventListener('click',function(e){
-    if(e.target===$('lbX')||$('lb').classList.contains('pop')){$('lb').classList.remove('show','z','pop');return}
-    $('lb').classList.toggle('z');
-  });
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')$('lb').classList.remove('show','z','pop')});
 
   $('prev').onclick=function(){if(S.step>0){S.step--;S.err='';save();render()}};
   $('next').onclick=function(){
     if($('next').disabled)return;
-    if(S.step<STEPS.length-1){S.step++;S.err='';save();render();return}
+    if(S.step<steps().length-1){S.step++;S.err='';save();render();return}
     submit();
   };
 
@@ -304,16 +207,14 @@ h1.long{font-size:20px;margin-bottom:18px}
     S.sending=true;S.err='';$('next').disabled=true;$('next').textContent='제출 중…';
     var payload={
       participant_id:S.pid,
-      // 기존 UT 화면이 체험 순서(시각)를 기록하지 않아 알 수 없음 → null
-      first_version:null,
-      first_impression_order:S.o3,
+      prior_use:S.a.prior_use,              // "예" | "아니요"
+      order:'1then2',                       // 노출 순서 고정: 보관-비우기(c) 위, 모으기-비우기(b) 아래
+      device_type:deviceType(),
+      mapping:C.MAPPING,                    // 방식 번호 → 실제 버전
       task_result:{},
       answers:S.a
     };
-    ['before','after'].forEach(function(v){
-      var r=stored(C.EXISTING_KEYS.result[v]);
-      if(r)payload.task_result[v]={result:r};
-    });
+    M.forEach(function(m){payload.task_result[m]={result:S.a['task_'+m]}});
     fetch(C.SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})})
       .then(function(o){

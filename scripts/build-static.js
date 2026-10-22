@@ -24,4 +24,5 @@ function copyDir(rel) {
 
 ['index.html', 'survey.html'].forEach((f) => copyFile(f));
 copyFile(path.join('survey', 'config.js'));
+copyFile(path.join('guide', 'its-guide.js'));
 console.log('static files copied to public/');

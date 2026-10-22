@@ -3,94 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>젤리아이 UX 테스트</title>
-<meta name="description" content="젤리아이 A/B 버전 사용성 테스트 시작 화면">
+<title>지금 여기 트렌드는 — 보관함 비교 테스트</title>
+<meta name="description" content="카드 보관함 모으기 방식 비교 테스트 시작 화면">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <style>
-:root{--bg:#f6f7fb;--card:#fff;--ink:#14142b;--sub:#5d6178;--line:#e4e6ef;--brand:#4f46e5;--brand-soft:#eef0ff}
+:root{--ink:#1a1a1a;--sub:#6b6b73;--navy:#1a1a2e;--mist:#f4f4f6;--off:#d9d9de}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;line-height:1.55;min-height:100vh;display:flex;flex-direction:column;align-items:center}
-header{width:100%;max-width:720px;padding:14px 20px 0;display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
-.dot{width:28px;height:28px;border-radius:8px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
-main{width:100%;max-width:720px;padding:14px 20px 12px;flex:1}
-h1{font-size:clamp(21px,5.8vw,28px);line-height:1.4;font-weight:800;letter-spacing:-.02em;word-break:keep-all}
-h1 span{display:block;white-space:nowrap}
-h1 em{font-style:normal;color:var(--brand);white-space:nowrap}
-.lead{margin-top:10px;color:var(--sub);font-size:15px;line-height:1.5;word-break:keep-all}
-.steps{display:flex;gap:6px;margin:12px 0 14px;flex-wrap:wrap}
-.step{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--sub);background:var(--brand-soft);border-radius:999px;padding:4px 9px 4px 5px;white-space:nowrap}
-.step b{width:16px;height:16px;border-radius:50%;background:var(--brand);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center}
-.pick{font-size:14px;font-weight:700;color:var(--sub);margin-bottom:8px}
-.opts{display:flex;flex-direction:column;gap:10px}
-.opt{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:11px 14px;text-decoration:none;color:var(--ink);transition:.15s;box-shadow:0 1px 2px #14142b0a}
-.opt:hover,.opt:focus-visible{border-color:var(--brand);box-shadow:0 8px 24px #4f46e522;transform:translateY(-1px);outline:0}
-.opt:active{transform:none}
-.ico{width:42px;height:42px;border-radius:12px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}
-.opt.after .ico{background:#e7f7f0}
-.txt{flex:1;min-width:0}
-.txt strong{display:block;font-size:19px;font-weight:800;line-height:1.35}
-.txt span{display:block;font-size:13.5px;color:var(--sub);margin-top:1px}
-.go{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
-.opt:hover .go{background:var(--brand)}
-@media(max-width:480px){main{padding-top:14px}}
-@media(max-width:360px){.txt strong{font-size:17px}.step{font-size:11.5px}}
-.survey{margin-top:16px}
-.survey h2{font-size:15px;font-weight:800;margin-bottom:8px}
-.survey a{display:flex;align-items:center;justify-content:center;gap:8px;height:50px;border-radius:14px;background:var(--brand);color:#fff;font-size:16px;font-weight:800;text-decoration:none;box-shadow:0 6px 18px #4f46e533}
-.survey a:active{transform:scale(.99)}
-.survey a[aria-disabled="true"]{background:#d9dbe6;color:#8b8fa3;box-shadow:none;pointer-events:none;cursor:not-allowed}
-.survey .hint{margin-top:8px;font-size:12px;color:var(--sub);text-align:center}
-.survey .hint.done{display:none}
+body{background:#fff;color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR","Apple SD Gothic Neo",Roboto,sans-serif;font-size:15px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column;align-items:center;letter-spacing:-.01em}
+.wrap{width:100%;max-width:720px;padding-left:24px;padding-right:24px}
+h1{font-size:clamp(18px,4vw,20px);line-height:1.35;font-weight:800;letter-spacing:-.035em;word-break:keep-all}
+h2{font-size:17px;line-height:1.5;font-weight:700;letter-spacing:-.02em;word-break:keep-all}
+.sub{color:var(--sub);word-break:keep-all}
+ul.dots{list-style:none;display:flex;flex-direction:column;gap:14px}
+ul.dots li{position:relative;padding-left:20px;word-break:keep-all}
+ul.dots li::before{content:"•";position:absolute;left:2px;top:0;color:var(--ink)}
+.cta{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:0 24px;border:0;border-radius:999px;background:var(--navy);color:#fff;font-family:inherit;font-size:15px;font-weight:700;letter-spacing:-.01em;text-decoration:none;cursor:pointer}
+.cta::after{content:"→";font-size:18px;font-weight:600}
+.cta:active{opacity:.85}
+.cta:disabled,.cta[aria-disabled="true"]{background:var(--off);color:#fff;pointer-events:none;cursor:not-allowed}
+header{padding-top:22px;font-size:15px;font-weight:700;color:var(--sub)}
+main{flex:1;padding-top:40px;padding-bottom:150px}
+.lead{margin-top:14px;font-size:15px}
+section{margin-top:56px}
+section h2{margin-bottom:22px}
+.note{margin-top:22px;font-size:13px;color:var(--sub);word-break:keep-all}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt.done{background:var(--navy);box-shadow:none}
+.opt small{font-size:13px;font-weight:600;opacity:.7;margin-left:8px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:14px 0 calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.bar .wrap{display:flex;flex-direction:column;gap:8px}
+.bar .hint{text-align:center;font-size:13px;color:var(--sub)}
+.bar .hint.done{display:none}
+@media(min-width:900px){main{padding-top:72px}}
 </style>
 </head>
 <body>
-<header><span class="dot">Z</span>젤리아이 UX 테스트</header>
-<main>
-  <h1><span>모델을 선택하고</span><span><em>LLM</em>과 대화를 시작해보세요</span></h1>
-  <p class="lead">화면 내에서 16초가 지나면 포기, 성공 선택이 가능합니다. 클릭해서 다시 돌아와주세요.</p>
+<header class="wrap">지금 여기 트렌드는 — 보관함 비교 테스트</header>
+<main class="wrap">
+  <h1>지금 여기 트렌드는<br>— 보관함 비교 테스트</h1>
+  <p class="lead sub">두 가지 카드 모으기 방식을 순서대로 써보고, 아래 과제를 해보세요.</p>
 
-  <div class="steps" aria-label="진행 순서">
-    <span class="step"><b>1</b>버전 선택</span>
-    <span class="step"><b>2</b>모델 선택</span>
-    <span class="step"><b>3</b>채팅 화면 진입</span>
-  </div>
+  <section aria-label="과제">
+    <h2>해볼 과제</h2>
+    <ul class="dots">
+      <li>전체 탭에서 모으기 기능으로 마음에 드는 카드를 모아보세요.</li>
+      <li>모은 카드를 찾아 선택해서 훑어보세요.</li>
+    </ul>
+    <p class="note">개수 제한은 없어요. 모으기는 보관-비우기는 보관함 아이콘, 모으기-비우기는 하단 버튼에서 시작합니다.<br>시간제한은 없어요. 두 방식 모두 해보셨으면 돌아와서 다음 단계로 진행해 주세요.</p>
+  </section>
 
-  <p class="pick">테스트할 버전을 선택하세요</p>
-  <nav class="opts">
-    <a class="opt after" id="after" href="after.html">
-      <span class="ico">✨</span>
-      <span class="txt"><strong>젤리아이 B버전</strong><span>B버전 화면으로 시작</span></span>
-      <span class="go">→</span>
-    </a>
-    <a class="opt before" id="before" href="before.html">
-      <span class="ico">📱</span>
-      <span class="txt"><strong>젤리아이 A버전</strong><span>A버전 화면으로 시작</span></span>
-      <span class="go">→</span>
-    </a>
-  </nav>
-
-  <section class="survey">
-    <h2>마지막으로 의견 작성 부탁드립니다</h2>
-    <a id="survey" href="survey.html" aria-disabled="true">10초만에 설문 작성 →</a>
-    <p class="hint" id="surveyHint">A·B 두 버전 모두 체험 후 돌아오면 작성할 수 있어요</p>
+  <section>
+    <h2>테스트할 방식을 선택하세요</h2>
+    <nav class="opts" id="opts">
+      <a class="cta opt" id="opt1" data-n="1" href="https://its-psi-eight.vercel.app/?v=c" target="_blank" rel="opener"><span>보관-비우기</span></a>
+      <a class="cta opt" id="opt2" data-n="2" href="https://its-psi-eight.vercel.app/?v=b" target="_blank" rel="opener"><span>모으기-비우기</span></a>
+    </nav>
   </section>
 </main>
+<div class="bar"><div class="wrap">
+  <a class="cta" id="survey" href="survey.html" aria-disabled="true"><span>설문 작성하기</span></a>
+  <p class="hint" id="surveyHint">두 방식을 모두 체험한 뒤 돌아오면 작성할 수 있어요</p>
+</div></div>
 <script>
-// A/B 버전을 모두 눌러본 뒤에만 설문 버튼 활성화
+// 두 방식을 모두 열어본 뒤에만 설문 버튼 활성화 
 (function(){
-  var K={before:'zeli_done_before',after:'zeli_done_after'};
+  var K={'1':'its_vault_done_1','2':'its_vault_done_2'};
   function get(k){try{return localStorage.getItem(k)==='1'}catch(e){return false}}
   function set(k){try{localStorage.setItem(k,'1')}catch(e){}}
+
+  // 테스트 세션 표시(guide=1) + 설문 안내 화면으로 돌아올 주소(ret)를 링크에 붙임
+  var RET=encodeURIComponent(location.href.split('#')[0].split('?')[0]);
+  document.querySelectorAll('.opt').forEach(function(a){a.href=a.getAttribute('href')+'&guide=1&ret='+RET});
+  // 열린 its 탭에서 닫기(X)를 누르면 체험 종료로 기록
+  window.addEventListener('message',function(e){
+    var d=e.data;
+    if(!d||d.type!=='its-vault-done'||(d.n!=='1'&&d.n!=='2'))return;
+    var ok=false;document.querySelectorAll('.opt').forEach(function(a){try{if(new URL(a.getAttribute('href')).origin===e.origin)ok=true}catch(x){}});
+    if(ok){set(K[d.n]);refresh()}
+  });
+
   function refresh(){
-    var ok=get(K.before)&&get(K.after);
-    var a=document.getElementById('survey');
-    a.setAttribute('aria-disabled',ok?'false':'true');
+    var ok=get(K['1'])&&get(K['2']);
+    document.getElementById('survey').setAttribute('aria-disabled',ok?'false':'true');
     document.getElementById('surveyHint').classList.toggle('done',ok);
+    ['1','2'].forEach(function(n){document.getElementById('opt'+n).classList.toggle('done',get(K[n]))});
   }
+  // 외부 주소라 돌아왔는지 알 수 없으므로, 눌러서 열었을 때 체험한 것으로 기록
+  document.querySelectorAll('.opt').forEach(function(a){
+    a.addEventListener('click',function(){set(K[a.getAttribute('data-n')]);refresh()});
+  });
   document.getElementById('survey').addEventListener('click',function(e){
     if(this.getAttribute('aria-disabled')==='true')e.preventDefault();
   });
   window.addEventListener('pageshow',refresh);
+  window.addEventListener('focus',refresh);
   refresh();
 })();
 </script>
