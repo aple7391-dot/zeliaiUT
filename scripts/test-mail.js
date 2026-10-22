@@ -9,9 +9,9 @@ const built = buildRows({
   order: '1then2',
   device_type: 'mobile',
   answers: {
-    task_1: 'success', task_2: 'giveup', seq_1: 6, seq_2: 3,
+    seq_1: 6, seq_2: 3,
     fb_feel_1: '보관함이 편했어요', fb_improve_2: '삭제 버튼 위치가 헷갈렸어요',
-    compare_prefer: '보관-비우기', compare_familiar: '비슷함', final_pick_reason: '보관-비우기, 모으기가 빨라서'
+    compare_prefer: '보관함', compare_familiar: '비슷함', final_pick_reason: '보관함, 모으기가 빨라서'
   }
 });
 console.log('subject =', require('../lib/submit.js').buildMail(built).subject);
