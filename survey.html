@@ -34,7 +34,13 @@ main>.sub{margin-bottom:8px}
 .q{font-size:16px;font-weight:600;line-height:1.55;word-break:keep-all;margin-bottom:16px}
 .fq{position:relative;padding-left:20px;font-size:14px;font-weight:600;margin-bottom:10px}
 .fq::before{content:"•";position:absolute;left:2px}
-.fgap{height:22px}
+.fgap{height:20px}
+/* feedback 단계: 두 방식을 각각 패널로 묶고, 방식 이름을 스크롤 중에도 고정해 보여준다.
+   (원인: 8개 입력칸이 경계 없이 이어져, 스크롤 중간에서는 '지금 어느 방식을 쓰고 있는지'를 알려주는 라벨이 화면 밖으로 사라짐) */
+.card.panel{background:var(--mist);border-radius:20px;padding:4px 18px 22px;margin-top:28px}
+.card.panel:first-of-type{margin-top:8px}
+.card.panel .tag{position:sticky;top:0;background:var(--mist);padding:16px 0 12px;margin:0 0 4px;z-index:1}
+.card.panel textarea{background:#fff}
 .scale{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .scale button{min-height:52px;border:0;background:var(--mist);border-radius:12px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit}
 .scale button.on{background:var(--navy);color:#fff}
@@ -119,7 +125,7 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     return h+'</div><div class="ends"><span>1 '+esc(low)+'</span><span>7 '+esc(high)+'</span></div>';
   }
   function text(key,rows,ph){return '<textarea data-t="'+key+'" rows="'+(rows||4)+'" maxlength="1000"'+(ph?' placeholder="'+esc(ph)+'"':'')+'>'+esc(S.a[key]||'')+'</textarea>'}
-  function block(m,inner){return '<section class="card"><span class="tag">'+esc(L[m])+'</span>'+inner+'</section>'}
+  function block(m,inner,cls){return '<section class="card'+(cls?' '+cls:'')+'"><span class="tag">'+esc(L[m])+'</span>'+inner+'</section>'}
   function choiceBtns(key,opts){
     return '<div class="choices">'+opts.map(function(o){
       return '<button type="button" data-k="'+key+'" data-v="'+esc(o)+'" class="'+(S.a[key]===o?'on':'')+'">'+esc(o)+'</button>';
@@ -146,7 +152,7 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     }else if(step==='feedback'){
       h+='<h1>'+esc(T.feedbackTitle)+'</h1><p class="sub">'+esc(T.feedbackSub)+'</p>';
       M.forEach(function(m){
-        h+=block(m,C.FEEDBACK.map(function(f){return '<p class="fq">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+m,3)}).join('<div class="fgap"></div>'));
+        h+=block(m,C.FEEDBACK.map(function(f){return '<p class="fq">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+m,3,'비워둬도 괜찮아요')}).join('<div class="fgap"></div>'),'panel');
       });
     }else if(step==='compare'){
       var opts=[T.cmpOne,T.cmpTwo,T.cmpSame];
