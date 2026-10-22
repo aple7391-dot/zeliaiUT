@@ -48,12 +48,10 @@
       seqLow: '매우 어려웠다',
       seqHigh: '매우 쉬웠다',
       stepTitle: { c: '보관함 방식은 어땠나요?', b: '모으기 방식은 어땠나요?' },
-      feedbackSub: '선택 입력이에요. 비워두고 다음으로 넘어가도 괜찮아요.',
       comparePrefer: '두 방식 중 선호도가 더 높은 쪽은?',
       compareFamiliar: '두 방식 중 더 익숙하게 느껴진 쪽은?',
       cmpOne: '보관함',
       cmpTwo: '모으기',
-      cmpSame: '비슷함',
       finalTitle: '마지막 질문이에요',
       pickReason: '둘 중 하나만 계속 써야 한다면 어느 쪽을 쓰시겠어요? 그 이유도 알려주세요.'
     }

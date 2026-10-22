@@ -47,6 +47,8 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 .choices{display:flex;flex-direction:column;gap:10px}
 .choices button{min-height:56px;border:0;background:var(--mist);border-radius:14px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;text-align:left;padding:0 20px}
 .choices button.on{background:var(--navy);color:#fff}
+.choices.row{flex-direction:row}
+.choices.row button{flex:1;text-align:center;padding:0 10px}
 .nav{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:14px 0 calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:center}
 .nav .in{display:flex;align-items:center;gap:12px}
 .nav .prev{flex:0 0 auto;height:56px;padding:0 8px;background:none;border:0;color:var(--sub);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
@@ -123,8 +125,8 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     return h+'</div><div class="ends"><span>1 '+esc(low)+'</span><span>7 '+esc(high)+'</span></div>';
   }
   function text(key,rows,ph){return '<textarea data-t="'+key+'" rows="'+(rows||4)+'" maxlength="1000"'+(ph?' placeholder="'+esc(ph)+'"':'')+'>'+esc(S.a[key]||'')+'</textarea>'}
-  function choiceBtns(key,opts){
-    return '<div class="choices">'+opts.map(function(o){
+  function choiceBtns(key,opts,row){
+    return '<div class="choices'+(row?' row':'')+'">'+opts.map(function(o){
       return '<button type="button" data-k="'+key+'" data-v="'+esc(o)+'" class="'+(S.a[key]===o?'on':'')+'">'+esc(o)+'</button>';
     }).join('')+'</div>';
   }
@@ -142,16 +144,15 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
       h+='<h1>'+esc(T.stepTitle[v])+'</h1>';
       h+=img(C.IMG[v]);
       h+='<section class="card"><p class="q">'+esc(T.seq)+'</p>'+scale('seq_'+step,T.seqLow,T.seqHigh)+'</section>';
-      h+='<p class="sub" style="margin-top:28px">'+esc(T.feedbackSub)+'</p>';
       h+=C.FEEDBACK.map(function(f){
         return '<p class="fq" style="margin-top:18px">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+step,3,C.FEEDBACK_PH[v][f[0]]);
       }).join('');
     }else if(step==='compare'){
-      var opts=[T.cmpOne,T.cmpTwo,T.cmpSame];
+      var opts=[T.cmpOne,T.cmpTwo];
       h+='<h1>두 방식을 비교해 주세요</h1>';
       h+='<div class="imgrow"><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""></div><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""></div></div>';
-      h+='<section class="card"><p class="q">'+esc(T.comparePrefer)+'</p>'+choiceBtns('compare_prefer',opts)+'</section>';
-      h+='<section class="card"><p class="q">'+esc(T.compareFamiliar)+'</p>'+choiceBtns('compare_familiar',opts)+'</section>';
+      h+='<section class="card"><p class="q">'+esc(T.comparePrefer)+'</p>'+choiceBtns('compare_prefer',opts,true)+'</section>';
+      h+='<section class="card"><p class="q">'+esc(T.compareFamiliar)+'</p>'+choiceBtns('compare_familiar',opts,true)+'</section>';
     }else if(step==='final'){
       h+='<h1>'+esc(T.finalTitle)+'</h1>';
       h+='<div class="imgrow tight"><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">a. 보관</span></div><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">b. 모으기</span></div></div>';
