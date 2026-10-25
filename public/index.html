@@ -85,8 +85,9 @@ li b{flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;backgroun
   function set(k){try{localStorage.setItem(k,'1')}catch(e){}}
 
   // 테스트 세션 표시(guide=1) + 설문 안내 화면으로 돌아올 주소(ret)를 링크에 붙임
+  var ROUND='2'; // UT 회차: 다음 회차에는 이 값만 올린다 (its 이벤트에 round 로 붙는다)
   var RET=encodeURIComponent(location.href.split('#')[0].split('?')[0]);
-  document.querySelectorAll('.opt').forEach(function(a){a.href=a.getAttribute('href')+'&guide=1&ret='+RET});
+  document.querySelectorAll('.opt').forEach(function(a){a.href=a.getAttribute('href')+'&guide=1&ret='+RET+(window.vaultPid?'&pid='+encodeURIComponent(window.vaultPid):'')+'&round='+ROUND});
   // 열린 its 탭에서 닫기(X)를 누르면 체험 종료로 기록
   window.addEventListener('message',function(e){
     var d=e.data;

@@ -19,6 +19,7 @@
   var pid = null;
   try { pid = localStorage.getItem(PID_KEY); if (!pid) { pid = uuid(); localStorage.setItem(PID_KEY, pid); } } catch (e) {}
   if (!pid) pid = uuid();
+  window.vaultPid = pid; // its 링크에 ?pid= 로 붙여 its 이벤트와 설문을 같은 참여자로 잇는다
 
   function send(ev) {
     var body = JSON.stringify({ participant_id: pid, events: [ev] });

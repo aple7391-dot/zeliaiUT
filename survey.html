@@ -81,7 +81,7 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
   var C=window.SURVEY_CONFIG, L=C.LABELS, T=C.TEXT, M=['1','2'], V={'1':'c','2':'b'};
   var $=function(id){return document.getElementById(id)};
   // 1: prior_use(사전 경험) → 2: 보관함(c)만 → 3: 모으기(b)만 → 4: 비교 → 5: 마지막
-  var ALL=['prior_use','1','2','compare','final'];
+  var ALL=['prior_use','2','1','compare','final']; // 모으기(2=b) 먼저, 보관함(1=c) 다음
 
   /* ---------- 상태 (localStorage 복구) ---------- */
   function uuid(){
@@ -149,14 +149,14 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
         return '<p class="fq" style="margin-top:18px">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+step,3,C.FEEDBACK_PH[v][f[0]]);
       }).join('');
     }else if(step==='compare'){
-      var opts=[T.cmpOne,T.cmpTwo];
+      var opts=[T.cmpTwo,T.cmpOne];
       h+='<h1>두 방식을 비교해 주세요</h1>';
-      h+='<div class="imgrow"><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">보관함</span></div><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">모으기</span></div></div>';
+      h+='<div class="imgrow"><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">모으기</span></div><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">보관함</span></div></div>';
       h+='<section class="card"><p class="q">'+esc(T.comparePrefer)+'</p>'+choiceBtns('compare_prefer',opts,true)+'</section>';
       h+='<section class="card"><p class="q">'+esc(T.compareFamiliar)+'</p>'+choiceBtns('compare_familiar',opts,true)+'</section>';
     }else if(step==='final'){
       h+='<h1>'+esc(T.finalTitle)+'</h1>';
-      h+='<div class="imgrow tight"><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">a. 보관</span></div><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">b. 모으기</span></div></div>';
+      h+='<div class="imgrow tight"><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">a. 모으기</span></div><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">b. 보관</span></div></div>';
       h+='<section class="card"><p class="q">'+esc(T.pickReason)+'</p>'+text('final_pick_reason',5)+'</section>';
     }
     return h;
@@ -211,7 +211,7 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     var payload={
       participant_id:S.pid,
       prior_use:S.a.prior_use,              // "예" | "아니요"
-      order:'1then2',                       // 노출 순서 고정: 보관함(c) 먼저, 모으기(b) 다음
+      order:'2then1',                       // 노출 순서 고정: 모으기(b) 먼저, 보관함(c) 다음
       device_type:deviceType(),
       mapping:C.MAPPING,                    // 방식 번호 → 실제 버전
       answers:S.a
