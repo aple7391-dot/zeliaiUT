@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const { handleSubmit } = require('./lib/submit.js');
 const { handleEvents } = require('./lib/events.js');
+const { handleVaultEvents } = require('./lib/vault-events.js');
 
 const ROOT = __dirname;
 const PORT = Number(process.env.PORT || 3000);
@@ -35,6 +36,12 @@ http.createServer(async (req, res) => {
   if (url === '/api/events') {
     if (req.method !== 'POST') { res.writeHead(405); return res.end(); }
     const out = await handleEvents(await readBody(req), process.env);
+    res.writeHead(out.status, { 'Content-Type': 'application/json; charset=utf-8' });
+    return res.end(JSON.stringify(out.json));
+  }
+  if (url === '/api/vault-events') {
+    if (req.method !== 'POST') { res.writeHead(405); return res.end(); }
+    const out = await handleVaultEvents(await readBody(req), process.env);
     res.writeHead(out.status, { 'Content-Type': 'application/json; charset=utf-8' });
     return res.end(JSON.stringify(out.json));
   }

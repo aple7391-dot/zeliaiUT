@@ -75,6 +75,7 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 <div class="nav" id="nav"><div class="in wrap"><button class="prev" id="prev">이전</button><button class="cta next" id="next" disabled>다음</button></div></div>
 
 <script src="survey/config.js"></script>
+<script src="survey/vault-track.js" data-page="survey"></script>
 <script>
 (function(){
   var C=window.SURVEY_CONFIG, L=C.LABELS, T=C.TEXT, M=['1','2'], V={'1':'c','2':'b'};
@@ -170,6 +171,7 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     }
     var list=steps(), step=list[S.step];
     $('barFill').style.width=((S.step+1)/list.length*100)+'%';
+    window.vaultTrack&&vaultTrack('survey_step',null,{step:step,no:S.step+1});
     $('cnt').textContent=(S.step+1)+' / '+list.length;
     main.innerHTML=(S.err?'<div class="err">'+esc(S.err)+'</div>':'')+view(step);
     $('prev').style.visibility=S.step===0?'hidden':'visible';
