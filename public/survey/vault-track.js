@@ -16,6 +16,19 @@
     var h = Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
     return h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20);
   }
+  // 회차가 바뀐 기기(1·2회차 참여자가 또 하는 경우)는 예전 기록을 비우고 새로 시작한다:
+  // - 체험 완료 표시(its_vault_done_*): 안 했는데 '체험 완료'·설문 버튼이 열려 있으면 헤맨다
+  // - 설문 진행 상태(its_vault_survey*): 예전 답이나 '이미 제출' 화면이 남지 않게
+  // - 기기 ID(its_vault_pid): 같은 ID면 서버가 '이미 제출한 사람'으로 보고 이번 회차 응답을 저장하지 않는다 → 새 ID
+  // 이 파일이 pid 를 읽기 전에 해야 하므로 맨 앞에서 한다. ROUND 는 index.html 의 ROUND 와 같은 값.
+  var ROUND = '3', ROUND_KEY = 'its_ut_round';
+  try {
+    if (localStorage.getItem(ROUND_KEY) !== ROUND) {
+      ['its_vault_done_1', 'its_vault_done_2', PID_KEY].forEach(function (k) { localStorage.removeItem(k); });
+      Object.keys(localStorage).forEach(function (k) { if (k.indexOf('its_vault_survey') === 0) localStorage.removeItem(k); });
+      localStorage.setItem(ROUND_KEY, ROUND);
+    }
+  } catch (e) {}
   var pid = null;
   try { pid = localStorage.getItem(PID_KEY); if (!pid) { pid = uuid(); localStorage.setItem(PID_KEY, pid); } } catch (e) {}
   if (!pid) pid = uuid();
