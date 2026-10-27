@@ -48,6 +48,11 @@ li b{flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;backgroun
 .live .lt b{display:block;font-size:12px;font-weight:700;color:#b5176b;letter-spacing:.01em;margin-bottom:2px}
 .live a{flex:none;display:inline-flex;align-items:center;gap:4px;height:38px;padding:0 14px;border-radius:999px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;text-decoration:none}
 .live a:active{opacity:.85}
+/* 미션 안내: 제목·태그·세 단계를 한 덩어리 카드로 */
+.mission{background:var(--mist);border-radius:18px;padding:20px 20px 22px}
+.mission .tag{background:#fff}
+.mission ol{margin-top:16px}
+.mission li span{word-break:keep-all}
 .opt.is-locked{opacity:.45;pointer-events:none;filter:grayscale(.3)}
 .lockNote{color:#b5176b;font-weight:600}
 </style>
@@ -55,23 +60,21 @@ li b{flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;backgroun
 <body>
 <main>
   <section>
-    <p class="label">지금 여기 트렌드는 사이트 유저 테스트</p>
     <h1>모으기 A/B 테스트</h1>
   </section>
 
-  <section aria-label="미션">
-    <h2>미션</h2>
-    <p class="tag" style="display:inline-block;margin-top:8px">테스트 중에 안내해드려요</p>
+  <section class="mission" aria-label="미션">
+    <div class="head"><h2>미션</h2><span class="tag">테스트 중에도 안내해드려요</span></div>
     <ol>
       <li><b>1</b><span>전체 탭에서 마음에 드는 카드를 모으기</span></li>
       <li><b>2</b><span>추천 탭에서 카드를 아무거나 하나 눌러보기</span></li>
-      <li><b>3</b><span>아까 담아둔 카드를 다시 한번 봐주세요</span></li>
+      <li><b>3</b><span>아까 담아둔 카드의 보관함을 확인</span></li>
     </ol>
   </section>
 
   <section>
     <h2>아래 중 하나를 체험해 주세요</h2>
-    <p class="label" style="margin-top:4px">둘 다 체험해주시면 물론 제일 감사드립니다!</p>
+    <p class="label" style="margin-top:4px">가급적 둘 다 체험해주신다면 매우 감사드려요</p>
     <nav class="opts" id="opts">
       <div class="optgroup">
         <a class="opt" id="opt2" data-n="2" href="https://its-git-feat-collect-icon-select-aple7391-dot.vercel.app/?v=b&tab=all" target="_blank" rel="opener">
