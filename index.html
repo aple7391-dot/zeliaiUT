@@ -162,7 +162,8 @@ li b{flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;backgroun
     // 서버가 없으면(예: 파일로 직접 연 index.html) 인원은 셀 수 없다 — "집계 중…"에 멈춰 있지 않게 줄을 비운다
     function noServer(){['1','2'].forEach(function(n){var el=document.getElementById('count'+n);if(el.textContent.indexOf('명')<0)el.textContent=''})}
     if(location.protocol==='file:'){noServer();return}
-    fetch('api/vault-events?round='+ROUND,{cache:'no-store'}) // 이번 회차에 체험한 사람만 센다.then(function(r){return r.json()}).then(function(j){
+    /* 이번 회차에 체험한 사람만 센다 */
+    fetch('api/vault-events?round='+ROUND,{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
       if(j&&j.ok&&j.counts)applyCounts(j.counts);else noServer();
     }).catch(noServer);
   }
