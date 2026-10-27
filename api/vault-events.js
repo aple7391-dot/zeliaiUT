@@ -5,7 +5,8 @@ const { handleVaultEvents, getVaultCounts } = require('../lib/vault-events.js');
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
     try {
-      const counts = await getVaultCounts(process.env);
+      const round = (req.query && req.query.round) || new URL(req.url, 'http://x').searchParams.get('round');
+      const counts = await getVaultCounts(process.env, round);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.setHeader('Cache-Control', 'no-store');

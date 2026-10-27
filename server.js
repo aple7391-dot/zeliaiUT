@@ -42,7 +42,7 @@ http.createServer(async (req, res) => {
   if (url === '/api/vault-events') {
     if (req.method === 'GET') {
       try {
-        const counts = await getVaultCounts(process.env);
+        const counts = await getVaultCounts(process.env, new URL(req.url, 'http://x').searchParams.get('round'));
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         return res.end(JSON.stringify({ ok: true, counts }));
       } catch (e) {
