@@ -21,7 +21,7 @@
     DONE_KEYS: { '1': 'its_vault_done_1', '2': 'its_vault_done_2' },
     // 젤리아이 응답과 섞이지 않도록 별도 테이블 사용 (서버: lib/submit.js)
     SUBMIT_URL: 'api/submit',
-    MAIL_TAG: '[its 모으기 A/B 테스트 3회차]',
+    MAIL_TAG: '[모으기 2차]',
 
     // 각 방식 화면에서: 쉬웠는가(척도) + 재인지(척도) + 느낀 점 + 개선이 필요해 보이는 점, 4문항만 묻는다
     FEEDBACK: [
