@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>보관함 비교 테스트 설문</title>
+<title>모으기 A/B 테스트 설문</title>
 <meta name="robots" content="noindex">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <style>
@@ -44,6 +44,9 @@ main>.sub{margin-bottom:8px}
 .ends span:last-child{text-align:right}
 textarea{width:100%;min-height:104px;border:0;border-radius:12px;padding:14px 16px;font-size:16px;line-height:1.6;font-family:inherit;color:var(--ink);resize:vertical;outline:0;background:var(--mist)}
 textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
+input[type="tel"],input.short{width:100%;height:52px;border:0;border-radius:12px;padding:0 16px;font-size:16px;font-family:inherit;color:var(--ink);outline:0;background:var(--mist)}
+input[type="tel"]:focus,input.short:focus{box-shadow:inset 0 0 0 2px var(--navy)}
+.fieldNote{margin-top:8px;font-size:12px;color:var(--sub)}
 .choices{display:flex;flex-direction:column;gap:10px}
 .choices button{min-height:56px;border:0;background:var(--mist);border-radius:14px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;text-align:left;padding:0 20px}
 .choices button.on{background:var(--navy);color:#fff}
@@ -56,9 +59,10 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 .center{padding-top:72px}
 .center h1{margin-bottom:14px}
 .err{background:var(--mist);color:#b42318;border-radius:12px;padding:14px 16px;font-size:14px;margin-bottom:20px}
+.badge{display:inline-block;margin-top:10px;padding:6px 14px;border-radius:999px;background:var(--mist);color:var(--ink);font-size:13px;font-weight:700}
 /* 질문에 곁들이는 스크린샷: 꽉 찬 폭 1장, 혹은 나란히 2장 */
-.qimg{display:block;width:100%;height:auto;border-radius:16px;margin:16px 0 22px;border:1px solid var(--off)}
-.imgrow{display:flex;gap:10px;margin:16px 0 22px}
+.qimg{display:block;width:50%;max-width:260px;height:auto;border-radius:16px;margin:16px auto 22px;border:1px solid var(--off)}
+.imgrow{display:flex;gap:10px;margin:16px auto 22px;width:50%;max-width:320px}
 .imgrow img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--off)}
 .imgrow.tight{gap:0}
 .imgrow .imgcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px}
@@ -69,7 +73,7 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 </style>
 </head>
 <body>
-<header class="wrap" style="padding-top:22px;font-size:15px;font-weight:700;color:var(--sub)">보관함 비교 테스트 설문</header>
+<header class="wrap" style="padding-top:22px;font-size:15px;font-weight:700;color:var(--sub)">모으기 A/B 테스트 설문<br><span class="badge" id="variantBadge"></span></header>
 <div class="prog wrap" id="prog"><div class="bar"><i id="barFill"></i></div><div class="cnt" id="cnt"></div></div>
 <main class="wrap" id="main"></main>
 <div class="nav" id="nav"><div class="in wrap"><button class="prev" id="prev">이전</button><button class="cta next" id="next" disabled>다음</button></div></div>
@@ -80,8 +84,22 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
 (function(){
   var C=window.SURVEY_CONFIG, L=C.LABELS, T=C.TEXT, M=['1','2'], V={'1':'c','2':'b'};
   var $=function(id){return document.getElementById(id)};
-  // 1: prior_use(사전 경험) → 2: 보관함(c)만 → 3: 모으기(b)만 → 4: 비교 → 5: 마지막
-  var ALL=['prior_use','2','1','compare','final']; // 모으기(2=b) 먼저, 보관함(1=c) 다음
+
+  // index.html 이 A/B 각 사이트 링크 밑에 전용 설문 버튼을 따로 두므로("A 테스트 설문하기" / "B 테스트
+  // 설문하기"), 그 버튼에서 ?t=2(A) 또는 ?t=1(B)로 들어오면 그 방식 하나만의 설문으로 강제한다.
+  // 파라미터 없이 들어온 경우(이전 방식과의 호환)에는 its_vault_done_1/2 를 보고 자동 판단한다.
+  var TARGET=(function(){var t=new URLSearchParams(location.search).get('t');return(t==='1'||t==='2')?t:null})();
+  function doneVariants(){
+    if(TARGET)return[TARGET];
+    var out=[];
+    ['2','1'].forEach(function(n){try{if(localStorage.getItem(C.DONE_KEYS[n])==='1')out.push(n)}catch(e){}});
+    if(!out.length)out=['2','1']; // 안전망: 못 읽으면 기존처럼 둘 다로 처리
+    return out;
+  }
+  var DONE=doneVariants(); // ['2'] | ['1'] | ['2','1']
+  var BOTH=DONE.length>1;
+  // 1: prior_use(사전 경험) → 체험한 방식 각각 → (둘 다 했을 때만) 비교·마지막 → 감사 + 연락처(A·B 공통 마지막 장)
+  var ALL=['prior_use'].concat(DONE, BOTH?['compare','final']:[], ['contact']);
 
   /* ---------- 상태 (localStorage 복구) ---------- */
   function uuid(){
@@ -91,8 +109,11 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     var h=Array.prototype.map.call(a,function(b){return('0'+b.toString(16)).slice(-2)}).join('');
     return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20);
   }
-  function load(){try{var x=JSON.parse(localStorage.getItem(C.STORAGE_KEY))||null;if(x){x.sending=false;x.err=''}return x}catch(e){return null}}
-  function save(){try{localStorage.setItem(C.STORAGE_KEY,JSON.stringify(S))}catch(e){}}
+  // A/B 설문을 한 참가자가 둘 다 진행할 수도 있어, 진행 상태(STORAGE_KEY)는 타겟별로 따로 저장한다 —
+  // 아니면 A 설문을 마친 직후 B 설문을 열어도 "이미 끝남" 화면만 보이게 된다. pid 는 같은 사람이므로 공유.
+  var STORAGE_KEY=C.STORAGE_KEY+(TARGET?('_t'+TARGET):'');
+  function load(){try{var x=JSON.parse(localStorage.getItem(STORAGE_KEY))||null;if(x){x.sending=false;x.err=''}return x}catch(e){return null}}
+  function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(S))}catch(e){}}
   function stored(k){try{return localStorage.getItem(k)}catch(e){return null}}
   var S=load();
   if(!S||!S.pid){
@@ -111,9 +132,10 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
   function valid(step){
     switch(step){
       case 'prior_use':return filled('prior_use');
-      case '1':case '2':return filled('seq_'+step);
+      case '1':case '2':return filled('seq_'+step)&&filled('nocollect_'+step);
       case 'compare':return filled('compare_prefer')&&filled('compare_familiar');
       case 'final':return filled('final_pick_reason');
+      case 'contact':return true; // 연락처는 원하는 사람만 남긴다(추첨 응모)
     }
     return false;
   }
@@ -126,6 +148,8 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     return h+'</div><div class="ends"><span>1 '+esc(low)+'</span><span>7 '+esc(high)+'</span></div>';
   }
   function text(key,rows,ph){return '<textarea data-t="'+key+'" rows="'+(rows||4)+'" maxlength="1000"'+(ph?' placeholder="'+esc(ph)+'"':'')+'>'+esc(S.a[key]||'')+'</textarea>'}
+  function shortText(key,ph){return '<input type="text" class="short" data-t="'+key+'" maxlength="200" value="'+esc(S.a[key]||'')+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'>'}
+  function tel(key,ph){return '<input type="tel" inputmode="numeric" autocomplete="tel" data-t="'+key+'" maxlength="20" value="'+esc(S.a[key]||'')+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'>'}
   function choiceBtns(key,opts,row){
     return '<div class="choices'+(row?' row':'')+'">'+opts.map(function(o){
       return '<button type="button" data-k="'+key+'" data-v="'+esc(o)+'" class="'+(S.a[key]===o?'on':'')+'">'+esc(o)+'</button>';
@@ -136,31 +160,43 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
   function view(step){
     var h='';
     if(step==='prior_use'){
-      h+='<h1>'+esc(T.priorTitle1)+'</h1>';
+      h+='<h1>'+esc(T.priorTitle)+'</h1>';
       h+=img(C.IMG.prior);
-      h+='<p class="qtitle">'+esc(T.priorTitle2)+'</p>';
-      h+='<section class="card">'+choiceBtns('prior_use',[T.priorYes,T.priorNo])+'</section>';
+      h+='<section class="card">'+choiceBtns('prior_use',[T.priorYes,T.priorNo],true)+'</section>';
     }else if(step==='1'||step==='2'){
       var v=V[step];
       h+='<h1>'+esc(T.stepTitle[v])+'</h1>';
       h+=img(C.IMG[v]);
       h+='<section class="card"><p class="q">'+esc(T.seq)+'</p>'+scale('seq_'+step,T.seqLow,T.seqHigh)+'</section>';
+      h+='<section class="card"><p class="q">'+esc(T.noCollect)+'</p>'+shortText('nocollect_'+step,T.noCollectPh)+'</section>';
       h+=C.FEEDBACK.map(function(f){
         return '<p class="fq" style="margin-top:18px">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+step,3,C.FEEDBACK_PH[v][f[0]]);
       }).join('');
     }else if(step==='compare'){
       var opts=[T.cmpTwo,T.cmpOne];
       h+='<h1>두 방식을 비교해 주세요</h1>';
-      h+='<div class="imgrow"><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">모으기</span></div><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">보관함</span></div></div>';
+      h+='<div class="imgrow"><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">A</span></div><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">B</span></div></div>';
       h+='<section class="card"><p class="q">'+esc(T.comparePrefer)+'</p>'+choiceBtns('compare_prefer',opts,true)+'</section>';
       h+='<section class="card"><p class="q">'+esc(T.compareFamiliar)+'</p>'+choiceBtns('compare_familiar',opts,true)+'</section>';
     }else if(step==='final'){
       h+='<h1>'+esc(T.finalTitle)+'</h1>';
-      h+='<div class="imgrow tight"><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">a. 모으기</span></div><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">b. 보관</span></div></div>';
+      h+='<div class="imgrow tight"><div class="imgcol"><img src="'+esc(C.IMG.b)+'" alt=""><span class="imgcap">A</span></div><div class="imgcol"><img src="'+esc(C.IMG.c)+'" alt=""><span class="imgcap">B</span></div></div>';
       h+='<section class="card"><p class="q">'+esc(T.pickReason)+'</p>'+text('final_pick_reason',5)+'</section>';
+    }else if(step==='contact'){
+      // A·B 둘 다 같은 마지막 장: 감사 인사 + 연락처(선택)
+      h+='<h1>'+esc(T.thanksTitle)+'</h1>';
+      h+='<section class="card"><p class="q">'+esc(T.contactLabel)+'</p>'+tel('contact',T.contactPh)+
+        '<p class="fieldNote">'+esc(T.contactNote)+'</p></section>';
     }
     return h;
   }
+
+  // 설문 시작과 동시에, 오늘 테스트한 게 A인지 B인지 바로 보여준다.
+  (function(){
+    var names=DONE.map(function(n){return L[n]});
+    var text=BOTH?(names.join('와 ')+' 모두'):names[0];
+    $('variantBadge').textContent='오늘 테스트하신 방식은 '+text+' 입니다';
+  })();
 
   function render(){
     var main=$('main');
@@ -210,8 +246,9 @@ textarea:focus{box-shadow:inset 0 0 0 2px var(--navy)}
     S.sending=true;S.err='';$('next').disabled=true;$('next').textContent='제출 중…';
     var payload={
       participant_id:S.pid,
-      prior_use:S.a.prior_use,              // "예" | "아니요"
-      order:'2then1',                       // 노출 순서 고정: 모으기(b) 먼저, 보관함(c) 다음
+      prior_use:S.a.prior_use,              // "네" | "아니오"
+      order:DONE.join('then'),              // 실제로 체험한 방식과 그 순서 (예: '2then1', '2', '1')
+      tested_variant:DONE.map(function(n){return L[n]}).join(','), // 참가자 화면 기준: 'A' | 'B' | 'A,B'
       device_type:deviceType(),
       mapping:C.MAPPING,                    // 방식 번호 → 실제 버전
       answers:S.a

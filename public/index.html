@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>모으기/보관함 비교 테스트</title>
-<meta name="description" content="카드 모으기/보관함 방식 비교 테스트 시작 화면">
+<title>모으기 A/B 테스트</title>
+<meta name="description" content="카드 모으기 방식 A/B 테스트 시작 화면">
 <meta name="robots" content="noindex">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <style>
@@ -36,44 +36,57 @@ li b{flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;backgroun
 .opt.is-done .arrow{display:none}
 .go{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border-radius:14px;background:var(--navy);color:#fff;font-size:16px;font-weight:700;text-decoration:none;font-family:inherit}
 .go[aria-disabled="true"]{background:#e4e4e8;color:#8b8b93;pointer-events:none;cursor:not-allowed}
+.go.sm{height:46px;font-size:14px;border-radius:12px}
 .note{margin-top:8px;font-size:13px;color:var(--sub)}
 .note.hidden{display:none}
+.optgroup+.optgroup{margin-top:10px}
+.optgroup .go{margin-top:8px}
+.optgroup .note{margin-top:6px;text-align:center}
+.opt.is-locked{opacity:.45;pointer-events:none;filter:grayscale(.3)}
+.lockNote{color:#b5176b;font-weight:600}
 </style>
 </head>
 <body>
 <main>
   <section>
     <p class="label">지금 여기 트렌드는 사이트 유저 테스트</p>
-    <h1>모으기/보관함 비교 테스트</h1>
+    <h1>모으기 A/B 테스트</h1>
   </section>
 
-  <section aria-label="과제">
-    <div class="head"><h2>과제</h2><span class="tag">개수·시간 제한 없음</span></div>
+  <section aria-label="미션">
+    <h2>미션</h2>
+    <p class="tag" style="display:inline-block;margin-top:8px">테스트 중에 안내해드려요</p>
     <ol>
       <li><b>1</b><span>전체 탭에서 마음에 드는 카드를 모으기</span></li>
-      <li><b>2</b><span>모은 카드를 찾아 훑어보기</span></li>
+      <li><b>2</b><span>추천 탭에서 카드를 아무거나 하나 눌러보기</span></li>
+      <li><b>3</b><span>아까 담아둔 카드를 다시 한번 봐주세요</span></li>
     </ol>
   </section>
 
   <section>
-    <h2>두 방식을 모두 체험해 주세요</h2>
+    <h2>아래 중 하나를 체험해 주세요</h2>
     <nav class="opts" id="opts">
-      <a class="opt" id="opt2" data-n="2" href="https://its-psi-eight.vercel.app/?v=b" target="_blank" rel="opener">
-        <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="12" height="12" rx="2"/><path d="M8 5h10a2 2 0 0 1 2 2v10"/><path d="M10 13v4M8 15h4"/></svg>
-        <span class="txt"><span class="t1">모으기-비우기</span><span class="t2">하단 버튼에서 시작해요</span></span>
-        <span class="st"><span class="arrow" aria-hidden="true">→</span><span class="done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>체험 완료</span></span>
-      </a>
-      <a class="opt" id="opt1" data-n="1" href="https://its-psi-eight.vercel.app/?v=c" target="_blank" rel="opener">
-        <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-        <span class="txt"><span class="t1">보관-비우기</span><span class="t2">보관함 아이콘에서 시작해요</span></span>
-        <span class="st"><span class="arrow" aria-hidden="true">→</span><span class="done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>체험 완료</span></span>
-      </a>
+      <div class="optgroup">
+        <a class="opt" id="opt2" data-n="2" href="https://its-git-feat-collect-icon-select-aple7391-dot.vercel.app/?v=b&tab=all" target="_blank" rel="opener">
+          <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="12" height="12" rx="2"/><path d="M8 5h10a2 2 0 0 1 2 2v10"/><path d="M10 13v4M8 15h4"/></svg>
+          <span class="txt"><span class="t1">A 테스트</span><span class="t2" id="count2">참여 인원 집계 중…</span></span>
+          <span class="st"><span class="arrow" aria-hidden="true">→</span><span class="done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>체험 완료</span></span>
+        </a>
+        <p class="note lockNote" id="lockNote2" hidden>지금은 B 테스트 참여가 더 필요해요. B를 먼저 체험해 주세요!</p>
+        <a class="go sm" id="survey2" data-t="2" href="survey.html?t=2" aria-disabled="true">A 테스트 설문하기(2분)</a>
+        <p class="note" id="surveyHint2">A를 체험하면 열려요</p>
+      </div>
+      <div class="optgroup">
+        <a class="opt" id="opt1" data-n="1" href="https://its-git-feat-collect-icon-select-aple7391-dot.vercel.app/?v=c&tab=all" target="_blank" rel="opener">
+          <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <span class="txt"><span class="t1">B 테스트</span><span class="t2" id="count1">참여 인원 집계 중…</span></span>
+          <span class="st"><span class="arrow" aria-hidden="true">→</span><span class="done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>체험 완료</span></span>
+        </a>
+        <p class="note lockNote" id="lockNote1" hidden>지금은 A 테스트 참여가 더 필요해요. A를 먼저 체험해 주세요!</p>
+        <a class="go sm" id="survey1" data-t="1" href="survey.html?t=1" aria-disabled="true">B 테스트 설문하기(2분)</a>
+        <p class="note" id="surveyHint1">B를 체험하면 열려요</p>
+      </div>
     </nav>
-  </section>
-
-  <section>
-    <a class="go" id="survey" href="survey.html" aria-disabled="true">설문 작성하기</a>
-    <p class="note" id="surveyHint">두 방식을 모두 체험하면 열려요</p>
   </section>
 </main>
 <script src="survey/vault-track.js" data-page="index"></script>
@@ -85,34 +98,78 @@ li b{flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;backgroun
   function set(k){try{localStorage.setItem(k,'1')}catch(e){}}
 
   // 테스트 세션 표시(guide=1) + 설문 안내 화면으로 돌아올 주소(ret)를 링크에 붙임
-  var ROUND='2'; // UT 회차: 다음 회차에는 이 값만 올린다 (its 이벤트에 round 로 붙는다)
+  var ROUND='3'; // UT 회차: 다음 회차에는 이 값만 올린다 (its 이벤트에 round 로 붙는다)
   var RET=encodeURIComponent(location.href.split('#')[0].split('?')[0]);
   document.querySelectorAll('.opt').forEach(function(a){a.href=a.getAttribute('href')+'&guide=1&ret='+RET+(window.vaultPid?'&pid='+encodeURIComponent(window.vaultPid):'')+'&round='+ROUND});
   // 열린 its 탭에서 닫기(X)를 누르면 체험 종료로 기록
   window.addEventListener('message',function(e){
     var d=e.data;
-    if(!d||d.type!=='its-vault-done'||(d.n!=='1'&&d.n!=='2'))return;
+    if(!d||(d.type!=='its-vault-done'&&d.type!=='its-open-survey'&&d.type!=='its-funnel')||(d.n!=='1'&&d.n!=='2'))return;
     var ok=false;document.querySelectorAll('.opt').forEach(function(a){try{if(new URL(a.getAttribute('href')).origin===e.origin)ok=true}catch(x){}});
-    if(ok){set(K[d.n]);refresh();window.vaultTrack&&vaultTrack('its_done',d.n)}
+    if(!ok)return;
+    // its 의 미션 퍼널 단계: 이 기기 ID(pid)로 Supabase 에 저장한다 (완수율·걸린 시간 분석용)
+    if(d.type==='its-funnel'){
+      window.vaultTrack&&vaultTrack('funnel',d.n,{step:String(d.step||'').slice(0,24),test:d.test==='B'?'B':'A',elapsed_ms:Number(d.elapsed_ms)||0,step_ms:Number(d.step_ms)||0,round:ROUND});
+      return;
+    }
+    set(K[d.n]);refresh();window.vaultTrack&&vaultTrack('its_done',d.n);
+    // its 의 미션 완료 바텀시트에서 [설문조사]를 누르면: https 페이지는 file:// 설문을 직접 못 여니 이 탭이 대신 연다
+    if(d.type==='its-open-survey'){try{window.focus()}catch(x){}location.href='survey.html?t='+d.n}
   });
 
+  // 사이트 하나에 설문 하나: A/B 각각 자기 사이트를 체험해야 그 설문 버튼만 열린다(서로 독립적)
   function refresh(){
-    var ok=get(K['1'])&&get(K['2']);
-    document.getElementById('survey').setAttribute('aria-disabled',ok?'false':'true');
-    document.getElementById('surveyHint').classList.toggle('hidden',ok);
-    ['1','2'].forEach(function(n){document.getElementById('opt'+n).classList.toggle('is-done',get(K[n]))});
+    ['1','2'].forEach(function(n){
+      var ok=get(K[n]);
+      document.getElementById('survey'+n).setAttribute('aria-disabled',ok?'false':'true');
+      document.getElementById('surveyHint'+n).classList.toggle('hidden',ok);
+      document.getElementById('opt'+n).classList.toggle('is-done',ok);
+    });
   }
   // 외부 주소라 돌아왔는지 알 수 없으므로, 눌러서 열었을 때 체험한 것으로 기록
   document.querySelectorAll('.opt').forEach(function(a){
-    a.addEventListener('click',function(){set(K[a.getAttribute('data-n')]);refresh();window.vaultTrack&&vaultTrack('open_its',a.getAttribute('data-n'))});
+    a.addEventListener('click',function(e){
+      if(a.classList.contains('is-locked')){e.preventDefault();return}
+      set(K[a.getAttribute('data-n')]);refresh();window.vaultTrack&&vaultTrack('open_its',a.getAttribute('data-n'));
+      window.setTimeout(loadCounts,1500); // 방금 누른 내 클릭이 집계에 반영되도록 잠시 뒤 다시 불러온다
+    });
   });
-  document.getElementById('survey').addEventListener('click',function(e){
-    if(this.getAttribute('aria-disabled')==='true'){e.preventDefault();return}
-    window.vaultTrack&&vaultTrack('survey_click');
+  ['1','2'].forEach(function(n){
+    document.getElementById('survey'+n).addEventListener('click',function(e){
+      if(this.getAttribute('aria-disabled')==='true'){e.preventDefault();return}
+      window.vaultTrack&&vaultTrack('survey_click',n);
+    });
   });
   window.addEventListener('pageshow',refresh);
   window.addEventListener('focus',refresh);
   refresh();
+
+  // 참여 인원 표시("N명이 참여했어요") + 한쪽이 5명 앞서면 반대쪽만 체험하도록 버튼 잠그기.
+  // 둘 다 5명이 되면 잠금은 자동으로 풀린다.
+  var THRESHOLD=5;
+  function applyCounts(counts){
+    var a=counts.a||0,b=counts.b||0;
+    document.getElementById('count2').textContent=a+'명이 참여했어요';
+    document.getElementById('count1').textContent=b+'명이 참여했어요';
+    var lockA=a>=THRESHOLD&&b<THRESHOLD;
+    var lockB=b>=THRESHOLD&&a<THRESHOLD;
+    document.getElementById('opt2').classList.toggle('is-locked',lockA);
+    document.getElementById('lockNote2').hidden=!lockA;
+    document.getElementById('opt1').classList.toggle('is-locked',lockB);
+    document.getElementById('lockNote1').hidden=!lockB;
+  }
+  function loadCounts(){
+    // 서버가 없으면(예: 파일로 직접 연 index.html) 인원은 셀 수 없다 — "집계 중…"에 멈춰 있지 않게 줄을 비운다
+    function noServer(){['1','2'].forEach(function(n){var el=document.getElementById('count'+n);if(el.textContent.indexOf('명')<0)el.textContent=''})}
+    if(location.protocol==='file:'){noServer();return}
+    fetch('api/vault-events',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
+      if(j&&j.ok&&j.counts)applyCounts(j.counts);else noServer();
+    }).catch(noServer);
+  }
+  loadCounts();
+  window.setInterval(loadCounts,20000);
+  window.addEventListener('focus',loadCounts);
+  window.addEventListener('pageshow',loadCounts);
 })();
 </script>
 </body>
