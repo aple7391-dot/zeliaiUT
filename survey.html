@@ -160,7 +160,7 @@ input[type="tel"]:focus,input.short:focus{box-shadow:inset 0 0 0 2px var(--navy)
   function view(step){
     var h='';
     if(step==='prior_use'){
-      h+='<h1>'+esc(T.priorTitle)+'</h1>';
+      h+='<h1>'+esc(T.priorTitle).replace(/\n/g,'<br>')+'</h1>';
       h+=img(C.IMG.prior);
       h+='<section class="card">'+choiceBtns('prior_use',[T.priorYes,T.priorNo],true)+'</section>';
     }else if(step==='1'||step==='2'){
@@ -169,8 +169,9 @@ input[type="tel"]:focus,input.short:focus{box-shadow:inset 0 0 0 2px var(--navy)
       h+=img(C.IMG[v]);
       h+='<section class="card"><p class="q">'+esc(T.seq)+'</p>'+scale('seq_'+step,T.seqLow,T.seqHigh)+'</section>';
       h+='<section class="card"><p class="q">'+esc(T.noCollect)+'</p>'+shortText('nocollect_'+step,T.noCollectPh)+'</section>';
+      // 느낀 점·개선점도 다른 질문과 같은 크기·간격(불릿 없음)
       h+=C.FEEDBACK.map(function(f){
-        return '<p class="fq" style="margin-top:18px">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+step,3,C.FEEDBACK_PH[v][f[0]]);
+        return '<section class="card"><p class="q">'+esc(f[1])+'</p>'+text('fb_'+f[0]+'_'+step,3,C.FEEDBACK_PH[v][f[0]])+'</section>';
       }).join('');
     }else if(step==='compare'){
       var opts=[T.cmpTwo,T.cmpOne];
@@ -195,7 +196,7 @@ input[type="tel"]:focus,input.short:focus{box-shadow:inset 0 0 0 2px var(--navy)
   (function(){
     var names=DONE.map(function(n){return L[n]});
     var text=BOTH?(names.join('와 ')+' 모두'):names[0];
-    $('variantBadge').textContent='오늘 테스트하신 방식은 '+text+' 입니다';
+    $('variantBadge').textContent='방금 테스트하신 방식은 '+text+' 입니다';
   })();
 
   function render(){
